@@ -23,6 +23,6 @@ echo "done"
 # configure
 dunecontrol --only=dumux all
 
-pushd test/python
+pushd dumux/test/python
 python test_1p.py
 popd
