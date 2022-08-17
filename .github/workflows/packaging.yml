@@ -101,7 +101,7 @@ jobs:
         matrix:
             os: [ubuntu-latest, macOS-latest]
             test: [core, extensions]
-            python: [3.6,3.10]
+            python: [3.6,'3.10']
     runs-on: ${{ matrix.os }}
     steps:
       - name: starting
@@ -120,12 +120,10 @@ jobs:
       - name: environmentLog
         if: github.event.inputs.logLevel != ''
         run: echo "LOGLEVEL=${{ github.event.inputs.logLevel }}" >> $GITHUB_ENV
-      - name: setup python 3.10 
-        # ${{ matrix.python }}
+      - name: setup python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.10 
-            #${{ matrix.python }}
+          python-version: ${{ matrix.python }}
       - name: Install dependencies
         if: ${{ matrix.python == '3.10' || matrix.os == 'ubuntu-latest' }}
         run: |
@@ -144,7 +142,7 @@ jobs:
           elif [ "$RUNNER_OS" == "macOS" ]; then
             brew update
             rm /usr/local/bin/2to3
-            brew install python@3.10
+            brew install python@'3.10'
             brew install openmpi superlu suite-sparse paraview
             # gmsh
           fi
