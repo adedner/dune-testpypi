@@ -103,6 +103,7 @@ jobs:
         # Note:
         # 1) macOS does not install petsc4py
         matrix: ${{fromJson(needs.getTests.outputs.matrix)}}
+          python: ['3.10']
     runs-on: ${{ matrix.os }}
     steps:
       - name: starting
@@ -116,10 +117,10 @@ jobs:
       - name: environmentFem
         if: github.event.inputs.fembranch != ''
         run: echo "FEMBRANCH=${{ github.event.inputs.fembranch }}" >> $GITHUB_ENV
-      - name: setup python 3.9
+      - name: setup python ${{ matrix.python }}
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: ${{ matrix.python }}
       - name: Install dependencies
         run: |
           if [ "$RUNNER_OS" == "Linux" ]; then
