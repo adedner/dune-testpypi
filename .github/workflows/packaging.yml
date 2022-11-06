@@ -29,7 +29,7 @@ on:
         #       and the build will fail
         description: 'core tag e.g. (master | v2.8.0) [master]'
         required: true
-        default: 'master'
+        default: 'fix/macOSIssueWithPybindCast'
       fembranch:
         # note: this should be either 'master' or a tag of the form
         #       vN where 'N' is a legal python package version
@@ -38,11 +38,11 @@ on:
         #       and the build will fail
         description: 'fem tag e.g. (master | v2.8.0.1) [master]'
         required: true
-        default: 'master'
+        default: 'v2.9.0'
       femversion:
         description: 'install dune-fem package == version - leave empty if you want to use latest version'
         required: false
-        default: ''
+        default: '2.9.0'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
