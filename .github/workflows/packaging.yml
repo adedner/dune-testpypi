@@ -69,7 +69,6 @@ on:        # yamllint disable-line rule:truthy
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # build packages
   build:
     name: build
     runs-on: [ubuntu-latest]
@@ -232,6 +231,9 @@ jobs:
     if: ${{ github.event.inputs.upload != 'none' && github.event.inputs.upload != '' }}
     needs: test
     runs-on: [ubuntu-latest]
+    # environment: pypi # add this to pypi repos
+    permissions:
+      id-token: write
     steps:
       - name: download artifacts
         uses: actions/download-artifact@v4
@@ -241,12 +243,15 @@ jobs:
       - name: remove repository tar.gz since it can't be uploaded
         run: rm dist/repos.tar.gz
         shell: bash
+      - name: remove dune-spgrid and dune-polygongrid since not setup for publishing yet
+        run: rm dist/dune-spgrid* dist/dune-polygongrid*
       - name: Publish package to pypi
         if: github.event.inputs.upload == 'pypi'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+      # testpypi not yet updated
       - name: Publish package to testpypi
         if: github.event.inputs.upload == 'testpypi'
         uses: pypa/gh-action-pypi-publish@release/v1
