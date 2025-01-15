@@ -241,7 +241,7 @@ jobs:
           name: packages
           path: dist
       - name: remove repository tar.gz since it can't be uploaded
-        run: rm dist/repos.tar.gz dist/dune-common*.tar.gz
+        run: rm dist/repos.tar.gz dist/dune_common*.tar.gz
         shell: bash
       - name: Publish package to pypi
         if: github.event.inputs.upload == 'pypi'
