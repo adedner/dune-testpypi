@@ -147,7 +147,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, macOS-latest]
         test: [coreA, coreB, extensions]
-        python: [3.8, 3.11]
+        python: [3.9, 3.13]
     runs-on: ${{ matrix.os }}
     steps:
       - name: starting
