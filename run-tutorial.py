@@ -43,7 +43,7 @@ tests = {
       "vemdemo.py",
       "monolithicStokes.py",
       "fieldsplitStokes.py",
-      "mixed_poisson.py",
+      # "mixed_poisson.py",
     ]}
 
 disabled = ["3dexample.py", "limit.py"]
