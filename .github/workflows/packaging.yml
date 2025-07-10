@@ -47,6 +47,15 @@ on:        # yamllint disable-line rule:truthy
         description: 'fem tag e.g. (master | v2.8.0.1) [master]'
         required: true
         default: 'master'
+      fempybranch:
+        # note: this should be either 'master' or a tag of the form
+        #       vN where 'N' is a legal python package version
+        #       e.g. N=2.8.0rc1
+        #       otherwise the distributions will not be generated
+        #       and the build will fail
+        description: 'fempy tag e.g. (master | v2.8.0.1) [master]'
+        required: true
+        default: 'master'
       runTests:
         type: boolean
         description: run testing scenarios [true]
@@ -94,6 +103,7 @@ jobs:
           echo "Using upload          : ${{ github.event.inputs.upload }}"
           echo "Using dune-core branch: ${{ github.event.inputs.branch }}"
           echo "Using dune-fem  branch: ${{ github.event.inputs.fembranch }}"
+          echo "Using dune-fempy  branch: ${{ github.event.inputs.fempybranch }}"
           echo "Run tests: ${{ github.event.inputs.runTests }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
@@ -210,7 +220,6 @@ jobs:
           set +e
           source dune-env/bin/activate
           pip3 list
-          python -m dune.fem # tutorial
         shell: bash
       - name: Run tutorial
         run: |
@@ -222,8 +231,8 @@ jobs:
           export DUNE_LOG_LEVEL=$LOGLEVEL
           export OMP_NUM_THREADS=4
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
-          cd fem_tutorial
-          python ../run-tutorial.py ${{ matrix.test }}
+          git clone -b ${{ github.event.inputs.upload }} https://gitlab.dune-project.org/dune-fem/dune-fempy.git
+          python run-tutorial.py ${{ matrix.test }}
         shell: bash
 
   # https://github.com/marketplace/actions/pypi-publish

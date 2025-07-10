@@ -4,7 +4,6 @@ import os, glob, sys
 # Creating the tuple of all the tests
 all_test = glob.glob("*.py")
 
-
 tests = {
     "coreA":[
       "backuprestore.py",
@@ -52,12 +51,21 @@ disabled = ["3dexample.py", "limit.py"]
 def execute(process):
     print("START:",process,"...",flush=True)
     if process in disabled: return [process,'disabled']
-    ret = os.system(f'PYTHONUNBUFFERED=1 python {process}')
+    ret = os.system(f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}')
     print("...",process,"completed",flush=True)
     return [process,ret]
+def build(tests):
+    cmd = "cd dune-fempy/data ; python build.py 8 all"
+    ret = os.system(cmd)
+    return ret
 
 if __name__ == "__main__":
     examples = sys.argv[1]
+
+    ret = build(tests[examples])
+    if not ret == 0:
+        sys.exit(2)
+
     process_pool = multiprocessing.Pool(processes = 1)
     ret = process_pool.map(execute, tests[examples])
 
