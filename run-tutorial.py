@@ -57,6 +57,7 @@ def execute(process):
     print("...",process,f"completed ({ret})",flush=True)
     return [process,ret]
 def build(tests):
+    tests = [t[:-3] for t in tests] # remove .py
     print("PRECOMPILE",flush=True)
     cmd = "cd dune-fempy/data ; python build.py 8 " + " ".join(tests)
     print("...",cmd,flush=True)
