@@ -58,7 +58,8 @@ def execute(process):
     return [process,ret]
 def build(tests):
     print("PRECOMPILE",flush=True)
-    cmd = "cd dune-fempy/data ; python build.py 8 all"
+    cmd = "cd dune-fempy/data ; python build.py 8 " + " ".join(tests)
+    print("...",cmd,flush=True)
     ret = os.system(cmd)
     print(f"... preccompile completed ({ret})",flush=True)
     return ret

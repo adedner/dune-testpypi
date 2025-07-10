@@ -231,7 +231,7 @@ jobs:
           export DUNE_LOG_LEVEL=$LOGLEVEL
           export OMP_NUM_THREADS=4
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
-          git clone -b ${{ github.event.inputs.upload }} https://gitlab.dune-project.org/dune-fem/dune-fempy.git
+          git clone -b ${{ github.event.inputs.fempybranch }} https://gitlab.dune-project.org/dune-fem/dune-fempy.git
           python run-tutorial.py ${{ matrix.test }}
         shell: bash
 
