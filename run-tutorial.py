@@ -51,12 +51,16 @@ disabled = ["3dexample.py", "limit.py"]
 def execute(process):
     print("START:",process,"...",flush=True)
     if process in disabled: return [process,'disabled']
+    cmd = f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}'
+    print("...",cmd,flush=True)
     ret = os.system(f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}')
-    print("...",process,"completed",flush=True)
+    print("...",process,f"completed ({ret})",flush=True)
     return [process,ret]
 def build(tests):
+    print("PRECOMPILE",flush=True)
     cmd = "cd dune-fempy/data ; python build.py 8 all"
     ret = os.system(cmd)
+    print(f"... preccompile completed ({ret})",flush=True)
     return ret
 
 if __name__ == "__main__":
