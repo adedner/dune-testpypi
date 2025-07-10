@@ -56,10 +56,10 @@ def execute(process):
     ret = os.system(f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}')
     print("...",process,f"completed ({ret})",flush=True)
     return [process,ret]
-def build(tests):
+def build(tests,cores):
     tests = [t[:-3] for t in tests] # remove .py
     print("PRECOMPILE",flush=True)
-    cmd = "cd dune-fempy/data ; python build.py 8 " + " ".join(tests)
+    cmd = f"cd dune-fempy/data ; python build.py {cores} " + " ".join(tests)
     print("...",cmd,flush=True)
     ret = os.system(cmd)
     print(f"... preccompile completed ({ret})",flush=True)
@@ -67,8 +67,10 @@ def build(tests):
 
 if __name__ == "__main__":
     examples = sys.argv[1]
+    cores = sys.argv[2]
+    print(f"Have {cores} cores available",flush=True)
 
-    ret = build(tests[examples])
+    ret = build(tests[examples],cores)
     if not ret == 0:
         sys.exit(2)
 
