@@ -18,6 +18,8 @@ tests = {
       "levelgridview.py",
       "cppfunctions.py",
       "parallelization.py",
+      "elasticity.py",
+      "wave.py",
     ],
     "coreB":[
       "othergrids.py",
@@ -29,12 +31,10 @@ tests = {
       "mcf-algorithm.py",
       "uzawa-scipy.py",
       "evalues_laplace.py",
+      "crystal.py",
+      "spiral.py",
     ],
     "extensions":[
-      "crystal.py",
-      "elasticity.py",
-      "spiral.py",
-      "wave.py",
       "chemical.py",
       "chimpl.py",
       "euler.py",             # one of these
