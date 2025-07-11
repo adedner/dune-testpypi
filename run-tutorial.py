@@ -4,38 +4,39 @@ import os, glob, sys
 # Creating the tuple of all the tests
 all_test = glob.glob("*.py")
 
-
 tests = {
     "coreA":[
-      "backuprestore.py",
       "boundary.py",
+      "cppfunctions.py",
       "concepts.py",
       "discontinuousgalerkin.py",
-      "dune-corepy.py",
-      "dune-fempy.py",
-      "filteredgridview.py",
       "geoview.py",
+      "dune-corepy.py",
+      "filteredgridview.py",
       "lineplot.py",
+      "othergrids.py",
       "levelgridview.py",
-      "cppfunctions.py",
       "parallelization.py",
+      "elasticity.py",
+      "wave.py",
+      "biharmonic_IPC0.py",
+      "evalues_laplace.py",
+      # "mixed_poisson.py",
     ],
     "coreB":[
-      "othergrids.py",
       "solversInternal.py",
       "solversExternal.py",
+      "dune-fempy.py",
       "laplace-adaptive.py",
       "laplace-dwr.py",
       "mcf.py",
       "mcf-algorithm.py",
+      "crystal.py",
+      "spiral.py",
+      "backuprestore.py",
       "uzawa-scipy.py",
-      "evalues_laplace.py",
     ],
     "extensions":[
-      "crystal.py",
-      "elasticity.py",
-      "spiral.py",
-      "wave.py",
       "chemical.py",
       "chimpl.py",
       "euler.py",             # one of these
@@ -43,7 +44,6 @@ tests = {
       "vemdemo.py",
       "monolithicStokes.py",
       "fieldsplitStokes.py",
-      # "mixed_poisson.py",
     ]}
 
 disabled = ["3dexample.py", "limit.py"]
@@ -52,12 +52,29 @@ disabled = ["3dexample.py", "limit.py"]
 def execute(process):
     print("START:",process,"...",flush=True)
     if process in disabled: return [process,'disabled']
-    ret = os.system(f'PYTHONUNBUFFERED=1 python {process}')
-    print("...",process,"completed",flush=True)
+    cmd = f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}'
+    print("...",cmd,flush=True)
+    ret = os.system(f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}')
+    print("...",process,f"completed ({ret})",flush=True)
     return [process,ret]
+def build(tests,cores):
+    tests = [t[:-3] for t in tests] # remove .py
+    print("PRECOMPILE",flush=True)
+    cmd = f"cd dune-fempy/data ; python build.py {cores} " + " ".join(tests)
+    print("...",cmd,flush=True)
+    ret = os.system(cmd)
+    print(f"... preccompile completed ({ret})",flush=True)
+    return ret
 
 if __name__ == "__main__":
     examples = sys.argv[1]
+    cores = sys.argv[2]
+    print(f"Have {cores} cores available",flush=True)
+
+    ret = build(tests[examples],cores)
+    if not ret == 0:
+        sys.exit(2)
+
     process_pool = multiprocessing.Pool(processes = 1)
     ret = process_pool.map(execute, tests[examples])
 
