@@ -6,33 +6,35 @@ all_test = glob.glob("*.py")
 
 tests = {
     "coreA":[
-      "backuprestore.py",
       "boundary.py",
+      "cppfunctions.py",
       "concepts.py",
       "discontinuousgalerkin.py",
-      "dune-corepy.py",
-      "dune-fempy.py",
-      "filteredgridview.py",
       "geoview.py",
+      "dune-corepy.py",
+      "filteredgridview.py",
       "lineplot.py",
+      "othergrids.py",
       "levelgridview.py",
-      "cppfunctions.py",
       "parallelization.py",
       "elasticity.py",
       "wave.py",
+      "biharmonic_IPC0",
+      "evalues_laplace.py",
+      # "mixed_poisson.py",
     ],
     "coreB":[
-      "othergrids.py",
       "solversInternal.py",
       "solversExternal.py",
+      "dune-fempy.py",
       "laplace-adaptive.py",
       "laplace-dwr.py",
       "mcf.py",
       "mcf-algorithm.py",
-      "uzawa-scipy.py",
-      "evalues_laplace.py",
       "crystal.py",
       "spiral.py",
+      "backuprestore.py",
+      "uzawa-scipy.py",
     ],
     "extensions":[
       "chemical.py",
@@ -42,7 +44,6 @@ tests = {
       "vemdemo.py",
       "monolithicStokes.py",
       "fieldsplitStokes.py",
-      # "mixed_poisson.py",
     ]}
 
 disabled = ["3dexample.py", "limit.py"]
