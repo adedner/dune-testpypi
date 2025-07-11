@@ -56,6 +56,15 @@ on:        # yamllint disable-line rule:truthy
         description: 'fempy tag e.g. (master | v2.8.0.1) [master]'
         required: true
         default: 'master'
+      testingbranch:
+        # note: this should be either 'master' or a tag of the form
+        #       vN where 'N' is a legal python package version
+        #       e.g. N=2.8.0rc1
+        #       otherwise the distributions will not be generated
+        #       and the build will fail
+        description: 'tag for testing repo e.g. (master | v2.8.0.1) [master]'
+        required: true
+        default: 'main'
       runTests:
         type: boolean
         description: run testing scenarios [true]
@@ -115,7 +124,7 @@ jobs:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-testpypi
           owner: dune-project
-          ref: main # ${{ github.ref }}
+          ref: ${{ github.event.inputs.testingbranch }}
           workflow: testing.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "${{ env.RUNTESTS }}" }'
           # workflow_timeout_seconds: 120
