@@ -58,7 +58,7 @@ def execute(process):
     else:
         cmd = f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 jupyter nbconvert --execute --to notebook {process}'
     print("...",cmd,flush=True)
-    ret = os.system(f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}')
+    ret = os.system(cmd)
     print("...",process,f"completed ({ret})",flush=True)
     return [process,ret]
 def build(tests,cores):
