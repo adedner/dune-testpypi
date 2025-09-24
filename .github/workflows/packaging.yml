@@ -201,7 +201,7 @@ jobs:
           PYVERS=$(python3 --version)
           echo "Selected python version $PYVERS"
           pip3 install --upgrade pip
-          pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel
+          pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel jupyter
           if [ "$RUNNER_OS" == "Linux" ]; then
             echo "CURRENTLY PETSC4PY IS DISABLED"
             # petsc4py is failing at the moment - need to check

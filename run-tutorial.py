@@ -44,6 +44,7 @@ tests = {
       "vemdemo.py",
       "monolithicStokes.py",
       "fieldsplitStokes.py",
+      "overview_of_advection_solver.ipynb",
     ]}
 
 disabled = ["3dexample.py", "limit.py"]
@@ -52,7 +53,10 @@ disabled = ["3dexample.py", "limit.py"]
 def execute(process):
     print("START:",process,"...",flush=True)
     if process in disabled: return [process,'disabled']
-    cmd = f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}'
+    if ".py" in process:
+        cmd = f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}'
+    else:
+        cmd = f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 jupyter nbconvert --execute --to notebook {process}'
     print("...",cmd,flush=True)
     ret = os.system(f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}')
     print("...",process,f"completed ({ret})",flush=True)
