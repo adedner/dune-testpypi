@@ -54,6 +54,7 @@ def execute(process):
     if sys.version_info.minor < 10 and process == "overview_of_advection_solver.ipynb":
         # Leads to ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
         print("Skipping landlab example due to issue with Python 3.9")
+        return [proecess,'skipped']
     print("START:",process,"...",flush=True)
     if process in disabled: return [process,'disabled']
     if ".py" in process:
@@ -90,5 +91,5 @@ if __name__ == "__main__":
         print(r)
     # also print which scripts are not being run by comparing with all_tests
 
-    success = all([r[1]==0 or r[1]=="disabled" for r in ret])
+    success = all([r[1]==0 or r[1]=="disabled" or r[1]=="skipped" for r in ret])
     sys.exit(0 if success else 1)
