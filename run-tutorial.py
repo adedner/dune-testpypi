@@ -51,6 +51,9 @@ disabled = ["3dexample.py", "limit.py"]
 
 # This block of code enables us to call the script from command line.
 def execute(process):
+    if sys.version_info.minor < 10 and process == "overview_of_advection_solver.ipynb":
+        # Leads to ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
+        print("Skipping landlab example due to issue with Python 3.9")
     print("START:",process,"...",flush=True)
     if process in disabled: return [process,'disabled']
     if ".py" in process:
