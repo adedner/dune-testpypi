@@ -20,6 +20,8 @@ tests = {
       "elasticity.py",
       "wave.py",
       "biharmonic_IPC0.py",
+      "evalues_laplace.py",
+      "mixed_poisson.py",
     ],
     "coreB":[
       "solversInternal.py",
