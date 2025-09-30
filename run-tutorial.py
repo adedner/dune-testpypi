@@ -1,5 +1,5 @@
 import multiprocessing
-import os, glob, sys
+import os, glob, sys, time
 
 # Creating the tuple of all the tests
 all_test = glob.glob("*.py")
@@ -20,8 +20,6 @@ tests = {
       "elasticity.py",
       "wave.py",
       "biharmonic_IPC0.py",
-      "evalues_laplace.py",
-      # "mixed_poisson.py",
     ],
     "coreB":[
       "solversInternal.py",
@@ -35,6 +33,8 @@ tests = {
       "spiral.py",
       "backuprestore.py",
       "uzawa-scipy.py",
+      "evalues_laplace.py",
+      # "mixed_poisson.py",
     ],
     "extensions":[
       "chemical.py",
@@ -44,7 +44,7 @@ tests = {
       "vemdemo.py",
       "monolithicStokes.py",
       "fieldsplitStokes.py",
-      "overview_of_advection_solver.ipynb",
+      "overview_of_advection_solver.py",
     ]}
 
 disabled = ["3dexample.py", "limit.py"]
@@ -62,9 +62,11 @@ def execute(process):
     else:
         cmd = f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 jupyter nbconvert --execute --to notebook {process}'
     print("...",cmd,flush=True)
+    start = time.time()
     ret = os.system(cmd)
-    print("...",process,f"completed ({ret})",flush=True)
-    return [process,ret]
+    used = time.time() - start
+    print("...",process,f"completed ({ret}) in {used}sec",flush=True)
+    return [process,ret,used]
 def build(tests,cores):
     tests = [t[:-3] for t in tests] # remove .py
     print("PRECOMPILE",flush=True)
