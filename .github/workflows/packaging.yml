@@ -92,6 +92,8 @@ jobs:
     runs-on: [ubuntu-latest]
     env:
       DOWNURL: 'https://gitlab.dune-project.org'
+      # same for dune and github build, different for lund
+      FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
       RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
@@ -99,20 +101,24 @@ jobs:
         run: echo ${{ github.event.inputs.distinct_id }}
       - name: downloadGithub
         if: github.event.inputs.download == 'github'
-        run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
+        run: echo "DOWNURL=https://github.com/${{ github.repository_owner }}" >> $GITHUB_ENV
+        #run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
       - name: downloadLund
         if: github.event.inputs.download == 'lund'
-        run: echo "DOWNURL=https://gitlab.maths.lu.se/dune" >> $GITHUB_ENV
+        run: |
+          echo "DOWNURL=https://gitlab.maths.lu.se/dune" >> $GITHUB_ENV
+          echo "FEMPYGITURL=https://gitlab.maths.lu.se/dune/dune-fempy.git" >> $GITHUB_ENV
       - name: printParameters
         run: |
           echo "Workflow parameters"
-          echo "Using github branch   : ${GITHUB_REF#refs/heads/}"
-          echo "Using log level       : ${{ github.event.inputs.logLevel }}"
-          echo "Using download        : ${{ env.DOWNURL }}"
-          echo "Using upload          : ${{ github.event.inputs.upload }}"
-          echo "Using dune-core branch: ${{ github.event.inputs.branch }}"
-          echo "Using dune-fem  branch: ${{ github.event.inputs.fembranch }}"
-          echo "Using dune-fempy  branch: ${{ github.event.inputs.fempybranch }}"
+          echo "Using github branch    : ${GITHUB_REF#refs/heads/}"
+          echo "Using log level        : ${{ github.event.inputs.logLevel }}"
+          echo "Using download         : ${{ env.DOWNURL }}"
+          echo "Using fempy-url        : ${{ env.FEMPYGITURL }}"
+          echo "Using upload           : ${{ github.event.inputs.upload }}"
+          echo "Using dune-core  branch: ${{ github.event.inputs.branch }}"
+          echo "Using dune-fem   branch: ${{ github.event.inputs.fembranch }}"
+          echo "Using dune-fempy branch: ${{ github.event.inputs.fempybranch }}"
           echo "Run tests: ${{ github.event.inputs.runTests }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
@@ -160,6 +166,9 @@ jobs:
   # test packages
   test:
     name: testing tutorial
+    env:
+      # same for dune and github build, different for lund
+      FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
     needs: build
     strategy:
       fail-fast: false
@@ -235,6 +244,9 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v2
         id: cpu-cores
+      - name: Set tutorial path
+        if: github.event.inputs.download == 'lund'
+        run: echo "FEMPYGITURL=https://gitlab.maths.lu.se/dune/dune-fempy.git" >> $GITHUB_ENV
       - name: Run tutorial
         run: |
           set +e
@@ -245,7 +257,7 @@ jobs:
           export DUNE_LOG_LEVEL=$LOGLEVEL
           export OMP_NUM_THREADS=4
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
-          git clone -b ${{ github.event.inputs.fempybranch }} https://gitlab.dune-project.org/dune-fem/dune-fempy.git
+          git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
           python run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
         shell: bash
 
