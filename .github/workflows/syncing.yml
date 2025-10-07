@@ -16,9 +16,9 @@ on:        # yamllint disable-line rule:truthy
           - pypi
           - testpypi
       tag:
-        description: 'tag, e.g., v2.9.1 [automatic] - automatic will lead to `dev` verioning'
+        description: 'tag, e.g., v2.9.1 [autodev,autorelease] - autodev will lead to `dev` versioning - autorelease to next stable release on pypi'
         required: true
-        default: 'automatic'
+        default: 'autodev'
       runTests:
         type: boolean
         description: run testing scenarios [false]
@@ -52,7 +52,7 @@ jobs:
         run: echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
       - name: generatetag
         run: |
-          if [ $TAG = "automatic" ] ; then
+          if [ $TAG = "autodev" ] ; then
             # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
             # This could be changed to check latest tag of the form x.y.z.r in the
             # dune-common mirror and returning the tag x.y.z.r+1
@@ -63,6 +63,19 @@ jobs:
               exit 1
             fi
             tag=$ver.dev`date +%Y%m%d`
+            rm -rf dune-common
+          elif [ $TAG = "autorelease" ] ; then
+            # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
+            # This could be changed to check latest tag of the form x.y.z.r in the
+            # dune-common mirror and returning the tag x.y.z.r+1
+            git clone --depth 1 https://gitlab.dune-project.org/core/dune-common
+            ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
+            if [ "x$ver" = "x" ] ; then
+              echo "Automatic tagging only on master branch for now (expect '-git' in version string)"
+              exit 1
+            fi
+            nextver=`python ./nextpypiversion.py dune-common $ver`
+            tag="v$nextver"
             rm -rf dune-common
           else
             tag=$TAG

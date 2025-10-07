@@ -115,6 +115,7 @@ if __name__ == '__main__':
     lv = DuneVersion( lastver )
     nextver = baseversion.next( lv )
 
-    print(f"""Package {package}:
-    Last version: {lv}
-    Next version: {nextver}""")
+    #print(f"""Package {package}:
+    #Last version: {lv}
+    #Next version: {nextver}""")
+    print(nextver)
