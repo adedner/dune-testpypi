@@ -71,7 +71,7 @@ jobs:
           echo "TAG=$tag" >> $GITHUB_ENV
         shell: bash
       - name: execute script
-        run: bash ./syncmirror $TAG
+        run: bash ./syncmirror ${{ github.repository_owner }} $TAG
         shell: bash
       - name: Run packaging workflow and get run ID
         if: github.event.inputs.tag != 'cleanup'
@@ -113,7 +113,7 @@ jobs:
           if_no_artifact_found: fail
       - name: remove tag on failure
         if: failure() && github.event.inputs.tag != 'cleanup'
-        run: bash ./syncmirror $TAG "${TAG/dev/bad}"
+        run: bash ./syncmirror ${{ github.repository_owner }} $TAG "${TAG/dev/bad}"
         shell: bash
       - name: upload artifacts
         if: github.event.inputs.tag != 'cleanup'

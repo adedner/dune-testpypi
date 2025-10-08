@@ -1,11 +1,15 @@
-tag=$1
-deltag=$2
+owner=$1
+tag=$2
+deltag=$3
 
 # needed to avoid issues with authentification
 git config --unset-all http.https://github.com/.extraheader
-# set identity for tagging
-git config --global user.email "a.s.dedner@warwick.ac.uk"
-git config --global user.name "A Dedner"
+
+if [ "$owner" = "adedner" ]; then
+  # set identity for tagging
+  git config --global user.email "a.s.dedner@warwick.ac.uk"
+  git config --global user.name "A Dedner"
+fi
 
 syncmodule()
 {
@@ -16,7 +20,7 @@ syncmodule()
   # first checkout the current version of the git repo this will make it
   # possible to later push the tags generated on github which are lost
   # during the mirroring process:
-  git clone https://user:$PAT@github.com/adedner/$m gh$m
+  git clone https://user:$PAT@github.com/$owner/$m gh$m
 
   # now clone the original
   git clone --mirror $p $m
@@ -34,7 +38,7 @@ syncmodule()
   fi
 
   # mirror to github and remove original repo
-  git push --mirror https://user:$PAT@github.com/adedner/$m
+  git push --mirror https://user:$PAT@github.com/$owner/$m
   cd ..
   rm -rf $m
   
