@@ -45,6 +45,7 @@ tests = {
       "monolithicStokes.py",
       "fieldsplitStokes.py",
       "overview_of_advection_solver.py",
+      "cylinder.py"
     ]}
 
 disabled = ["3dexample.py", "limit.py"]

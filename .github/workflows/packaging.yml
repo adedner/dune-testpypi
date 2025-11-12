@@ -176,7 +176,7 @@ jobs:
         os: [ubuntu-latest, macOS-latest]
         test: [coreA, coreB, extensions]
         # python: [3.9, 3.13] # 3.13 mpi4py not building on macOS (tested 18/05)
-        python: [3.10, 3.14]
+        python: [3.9, 3.14]
     runs-on: ${{ matrix.os }}
     steps:
       - name: starting
