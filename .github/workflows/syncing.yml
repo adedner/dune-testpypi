@@ -67,7 +67,7 @@ jobs:
             # tag=$ver.dev`date +%Y%m%d`
             # NEW: obtain latest version on pypi and increase last digget by one
             cd dune-common
-            tag='./bin/dunepackaging.py --getversion`
+            tag=`./bin/dunepackaging.py --getversion`
             cd ..
             rm -rf dune-common
           else
