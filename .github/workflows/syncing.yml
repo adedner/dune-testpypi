@@ -57,7 +57,7 @@ jobs:
             python3 -m venv tmpvenv
             . tmpvenv/bin/activate
             pip install scikit-build requests
-            git clone -b python/newpippathhandling --depth 1 https://gitlab.dune-project.org/core/dune-common
+            git clone -b python/newpippathhandling --depth 1 https://gitlab.dune-project.org/core/dune-common.git
             # OLD: dev tagging based on previous tags in repo
             # ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
             # if [ "x$ver" = "x" ] ; then
@@ -66,7 +66,9 @@ jobs:
             # fi
             # tag=$ver.dev`date +%Y%m%d`
             # NEW: obtain latest version on pypi and increase last digget by one
-            tag=`dune-common/bin/dunepackaging.py --getversion`
+            cd dune-common
+            tag='./bin/dunepackaging.py --getversion`
+            cd ..
             rm -rf dune-common
           else
             tag=$TAG
