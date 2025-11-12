@@ -54,7 +54,7 @@ jobs:
         run: |
           if [ $TAG = "automatic" ] ; then
             # this uses the mechanism available in dune-common/python/dune/packagemetadata.py
-            python3 -venv tmpvenv
+            python3 -m venv tmpvenv
             . tmpvenv/bin/activate
             pip install scikit-build requests
             git clone -b python/newpippathhandling --depth 1 https://gitlab.dune-project.org/core/dune-common
