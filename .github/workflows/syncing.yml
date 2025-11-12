@@ -16,12 +16,12 @@ on:        # yamllint disable-line rule:truthy
           - pypi
           - testpypi
       tag:
-        description: 'tag, e.g., v2.9.1 [automatic] - automatic will lead to `dev` verioning'
+        description: 'tag, e.g., v2.10.0.0 [automatic] - automatic will lead to `v2.10.0.x` type verioning where x-1 is found on pypi'
         required: true
         default: 'automatic'
       runTests:
         type: boolean
-        description: run testing scenarios [false]
+        description: run testing scenarios [true]
         required: true
         default: true
       logLevel:
@@ -53,16 +53,17 @@ jobs:
       - name: generatetag
         run: |
           if [ $TAG = "automatic" ] ; then
-            # current version uses the type of pre-release tags used so far, i.e., x.y.devDate
-            # This could be changed to check latest tag of the form x.y.z.r in the
-            # dune-common mirror and returning the tag x.y.z.r+1
+            # this uses the mechanism available in dune-common/python/dune/packagemetadata.py
             git clone --depth 1 https://gitlab.dune-project.org/core/dune-common
-            ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
-            if [ "x$ver" = "x" ] ; then
-              echo "Automatic tagging only on master branch for now (expect '-git' in version string)"
-              exit 1
-            fi
-            tag=$ver.dev`date +%Y%m%d`
+            # OLD: dev tagging based on previous tags in repo
+            # ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
+            # if [ "x$ver" = "x" ] ; then
+            #   echo "Automatic tagging only on master branch for now"
+            #   exit 1
+            # fi
+            # tag=$ver.dev`date +%Y%m%d`
+            # NEW: obtain latest version on pypi and increase last digget by one
+            tag=`./bin/dunepackaging.py --getversion`
             rm -rf dune-common
           else
             tag=$TAG

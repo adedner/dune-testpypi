@@ -43,6 +43,9 @@ syncmodule()
   rm -rf $m
   
   if [ "$tag" = "automatic" ] ; then
+    echo "should not be automatic anymore - suitable tag availabl"
+    exit 1
+  else
     cd gh$m
     git checkout master
     # first push the older tags
