@@ -54,7 +54,7 @@ jobs:
         run: |
           if [ $TAG = "automatic" ] ; then
             # this uses the mechanism available in dune-common/python/dune/packagemetadata.py
-            git clone --depth 1 https://gitlab.dune-project.org/core/dune-common
+            git clone -b python/newpippathhandling --depth 1 https://gitlab.dune-project.org/core/dune-common
             # OLD: dev tagging based on previous tags in repo
             # ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
             # if [ "x$ver" = "x" ] ; then
