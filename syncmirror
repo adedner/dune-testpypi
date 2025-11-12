@@ -52,17 +52,16 @@ syncmodule()
     git push --tags
     # possibly remove a tag
     if [ ! -z $deltag ] ; then
-      git push origin :refs/tags/$deltag
+      git push origin :refs/tags/$tag
+    else
+      # get the new data from the mirror step
+      git fetch
+      git pull
+
+      # generate the new tag and push it
+      git tag -a $tag -m "from github action"
+      git push origin $tag
     fi
-
-    # get the new data from the mirror step
-    git fetch
-    git pull
-
-    # generate the new tag and push it
-    git tag -a $tag -m "from github action"
-    git push origin $tag
-
     cd ..
   fi
 
