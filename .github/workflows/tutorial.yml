@@ -106,7 +106,6 @@ jobs:
           echo "Using log level        : ${{ github.event.inputs.logLevel }}"
           echo "Using download         : ${{ env.DOWNURL }}"
           echo "Using fempy-url        : ${{ env.FEMPYGITURL }}"
-          echo "Using upload           : ${{ github.event.inputs.upload }}"
           echo "Using dune-core  branch: ${{ github.event.inputs.branch }}"
           echo "Using dune-fem   branch: ${{ github.event.inputs.fembranch }}"
           echo "Using dune-fempy branch: ${{ github.event.inputs.fempybranch }}"

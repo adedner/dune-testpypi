@@ -101,7 +101,7 @@ jobs:
           repo: dune-testpypi
           owner: adedner
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
-          run_timeout_seconds: 7200
+          run_timeout_seconds: 10800
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
         if: github.event.inputs.tag != 'cleanup'
