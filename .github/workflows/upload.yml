@@ -1,0 +1,165 @@
+---
+name: sync/tag mirrors and upload
+# yamllint disable rule:line-length
+
+# Controls when the action will run.
+on:        # yamllint disable-line rule:truthy
+  workflow_dispatch:
+    inputs:
+      upload:
+        type: choice
+        description: 'upload (testpypi | pypi) [testpypi]'
+        required: true
+        default: 'testpypi'
+        options:
+          - pypi
+          - testpypi
+      tag:
+        description: 'tag, e.g., v2.10.0.0 [automatic] - automatic will lead to `v2.10.0.x` type verioning where x-1 is found on pypi'
+        required: true
+        default: 'automatic'
+      runTests:
+        type: boolean
+        description: run testing scenarios [true]
+        required: true
+        default: true
+      logLevel:
+        type: choice
+        description: 'Log level [Warning]'
+        required: true
+        default: 'Warning'
+        options:
+          - Debug
+          - Warning
+          - Info
+          - error
+
+jobs:
+  # build packages
+  synctag:
+    name: sync and tag
+    runs-on: [ubuntu-latest]
+    env:
+      PAT: ${{ secrets.Dispatch_Secret }}
+      TAG: ${{ github.event.inputs.tag }}
+      RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
+    steps:
+      - name: starting
+        uses: actions/checkout@v4
+      - name: settag
+        if: github.event.inputs.tag != ''
+        run: echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
+      - name: generatetag
+        run: |
+          if [ $TAG = "automatic" ] ; then
+            # this uses the mechanism available in dune-common/python/dune/packagemetadata.py
+            python3 -m venv tmpvenv
+            . tmpvenv/bin/activate
+            pip install scikit-build requests
+            git clone --depth 1 https://gitlab.dune-project.org/core/dune-common.git
+            # OLD: dev tagging based on previous tags in repo
+            # ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
+            # if [ "x$ver" = "x" ] ; then
+            #   echo "Automatic tagging only on master branch for now"
+            #   exit 1
+            # fi
+            # tag=$ver.dev`date +%Y%m%d`
+            # NEW: obtain latest version on pypi and increase last digget by one
+            cd dune-common
+            tag=`./bin/dunepackaging.py --getversion`
+            cd ..
+            rm -rf dune-common
+          else
+            tag=$TAG
+          fi
+          echo "Using tag=$tag"
+          echo "TAG=$tag" >> $GITHUB_ENV
+        shell: bash
+      - name: execute script
+        run: bash ./syncmirror ${{ github.repository_owner }} $TAG
+        shell: bash
+      - name: Run packaging workflow and get run ID
+        if: github.event.inputs.tag != 'cleanup'
+        uses: codex-/return-dispatch@v1
+        id: return_dispatch
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-testpypi
+          owner: adedner
+          ref: ${{ github.ref }}
+          workflow: packaging.yml
+          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}",
+                              "branch": "${{ env.TAG }}",
+                              "fembranch": "${{ env.TAG }}",
+                              "download": "github",
+                              "upload": "${{ github.event.inputs.upload }}",
+                              "runTests": "${{ env.RUNTESTS }}" }'
+      - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
+        if: github.event.inputs.tag != 'cleanup'
+        uses: Codex-/await-remote-run@v1
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-testpypi
+          owner: adedner
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          run_timeout_seconds: 7200
+          poll_interval_ms: 5000
+      - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
+        if: github.event.inputs.tag != 'cleanup'
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.Dispatch_Secret }}
+          repo: adedner/dune-testpypi
+          workflow: packaging.yml
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          workflow_conclusion: success
+          name: packages
+          path: dist
+          if_no_artifact_found: fail
+      - name: remove tag on failure
+        if: failure() && github.event.inputs.tag != 'cleanup'
+        run: bash ./syncmirror ${{ github.repository_owner }} $TAG "failure"
+        shell: bash
+      - name: upload artifacts
+        if: github.event.inputs.tag != 'cleanup'
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist
+
+  # https://github.com/marketplace/actions/pypi-publish
+  upload:
+    name: uploading
+    if: ${{ github.event.inputs.upload != 'none' && github.event.inputs.upload != '' }}
+    needs: synctag
+    runs-on: [ubuntu-latest]
+    # environment: pypi # add this to pypi repos
+    permissions:
+      id-token: write
+    steps:
+      - name: download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: packages
+          path: dist
+      - name: remove repository tar.gz since it can't be uploaded
+        run: rm dist/repos.tar.gz
+        shell: bash
+      - name: Publish package to pypi
+        if: github.event.inputs.upload == 'pypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
+      # testpypi not yet updated
+      - name: Publish package to testpypi
+        if: github.event.inputs.upload == 'testpypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
+          ## this is needed so long as versioning for
+          ## fem and core packages can differ (i.e. 2.8.0.x) but are uploaded
+          ## in same script.
+          ## Test if required version for core is available on pypi and use
+          ## instead of git?
+          # skip_existing: true
+
