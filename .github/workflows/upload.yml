@@ -35,7 +35,7 @@ on:        # yamllint disable-line rule:truthy
           - error
 
 jobs:
-  # build packages
+  # build and test packages
   synctag:
     name: sync and tag
     runs-on: [ubuntu-latest]
@@ -78,7 +78,7 @@ jobs:
       - name: execute script
         run: bash ./syncmirror ${{ github.repository_owner }} $TAG
         shell: bash
-      - name: Run packaging workflow and get run ID
+      - name: Run tutorial workflow and get run ID
         if: github.event.inputs.tag != 'cleanup'
         uses: codex-/return-dispatch@v1
         id: return_dispatch
@@ -87,12 +87,11 @@ jobs:
           repo: dune-testpypi
           owner: adedner
           ref: ${{ github.ref }}
-          workflow: packaging.yml
+          workflow: tutorial.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}",
                               "branch": "${{ env.TAG }}",
                               "fembranch": "${{ env.TAG }}",
                               "download": "github",
-                              "upload": "${{ github.event.inputs.upload }}",
                               "runTests": "${{ env.RUNTESTS }}" }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         if: github.event.inputs.tag != 'cleanup'
@@ -110,7 +109,7 @@ jobs:
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: adedner/dune-testpypi
-          workflow: packaging.yml
+          workflow: tutorial.yml
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
           workflow_conclusion: success
           name: packages
