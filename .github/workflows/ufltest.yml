@@ -60,11 +60,6 @@ on:        # yamllint disable-line rule:truthy
         description: 'tag for testing repo e.g. (master | v2.8.0.1) [master]'
         required: true
         default: 'main'
-      runTests:
-        type: boolean
-        description: run testing scenarios [true]
-        required: true
-        default: true
       logLevel:
         type: choice
         description: 'Log level [Warning]'
