@@ -1,5 +1,5 @@
 ---
-name: test tutorial
+name: test ufl from source
 # yamllint disable rule:line-length
 
 # Controls when the action will run.
