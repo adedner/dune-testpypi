@@ -1,0 +1,261 @@
+---
+name: test tutorial
+# yamllint disable rule:line-length
+
+# Controls when the action will run.
+on:        # yamllint disable-line rule:truthy
+  # schedule test for nightly build
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    # Note: the defaults are repeated within the 'env' section
+    #       of some of the jobs so any change to the default
+    #       need to be done (at least) twice!
+    inputs:
+      download:
+        type: choice
+        description: 'download location ( dune | lund ) [dune]'
+        required: true
+        default: 'dune'
+        options:
+          - dune
+          - github
+          - lund
+      uflbranch:
+        description: 'ufl branch/tag e.g. (master | 2025.2.0) [master]'
+        required: true
+        default: 'master'
+      branch:
+        # note: this should be either 'master' or a tag of the form
+        #       vN where 'N' is a legal python package version
+        #       e.g. N=2.8.0rc1
+        #       otherwise the distributions will not be generated
+        #       and the build will fail
+        description: 'core tag e.g. (master | v2.8.0) [master]'
+        required: true
+        default: 'master'
+      fembranch:
+        # note: this should be either 'master' or a tag of the form
+        #       vN where 'N' is a legal python package version
+        #       e.g. N=2.8.0rc1
+        #       otherwise the distributions will not be generated
+        #       and the build will fail
+        description: 'fem tag e.g. (master | v2.8.0.1) [master]'
+        required: true
+        default: 'master'
+      fempybranch:
+        # note: this should be either 'master' or a tag of the form
+        #       vN where 'N' is a legal python package version
+        #       e.g. N=2.8.0rc1
+        #       otherwise the distributions will not be generated
+        #       and the build will fail
+        description: 'fempy tag e.g. (master | v2.8.0.1) [master]'
+        required: true
+        default: 'master'
+      testingbranch:
+        # note: this should be either 'master' or a tag of the form
+        #       vN where 'N' is a legal python package version
+        #       e.g. N=2.8.0rc1
+        #       otherwise the distributions will not be generated
+        #       and the build will fail
+        description: 'tag for testing repo e.g. (master | v2.8.0.1) [master]'
+        required: true
+        default: 'main'
+      runTests:
+        type: boolean
+        description: run testing scenarios [true]
+        required: true
+        default: true
+      logLevel:
+        type: choice
+        description: 'Log level [Warning]'
+        required: true
+        default: 'Warning'
+        options:
+          - Debug
+          - Warning
+          - Info
+          - error
+      # needed only for dispatching from other repo
+      distinct_id:
+        required: false
+        description: 'set when dispatching from external repo - leave empty'
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build:
+    name: build
+    runs-on: [ubuntu-latest]
+    env:
+      DOWNURL: 'https://gitlab.dune-project.org'
+      # same for dune and github build, different for lund
+      FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
+      RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
+    steps:
+      - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
+        if: github.event.inputs.distinct_id != ''
+        run: echo ${{ github.event.inputs.distinct_id }}
+      - name: downloadGithub
+        if: github.event.inputs.download == 'github'
+        run: echo "DOWNURL=https://github.com/${{ github.repository_owner }}" >> $GITHUB_ENV
+        #run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
+      - name: downloadLund
+        if: github.event.inputs.download == 'lund'
+        run: |
+          echo "DOWNURL=https://gitlab.maths.lu.se/dune" >> $GITHUB_ENV
+          echo "FEMPYGITURL=https://gitlab.maths.lu.se/dune/dune-fempy.git" >> $GITHUB_ENV
+      - name: printParameters
+        run: |
+          echo "Workflow parameters"
+          echo "Using github branch    : ${GITHUB_REF#refs/heads/}"
+          echo "Using log level        : ${{ github.event.inputs.logLevel }}"
+          echo "Using download         : ${{ env.DOWNURL }}"
+          echo "Using fempy-url        : ${{ env.FEMPYGITURL }}"
+          echo "Using dune-core  branch: ${{ github.event.inputs.branch }}"
+          echo "Using dune-fem   branch: ${{ github.event.inputs.fembranch }}"
+          echo "Using dune-fempy branch: ${{ github.event.inputs.fempybranch }}"
+          echo "Run tests: ${{ github.event.inputs.runTests }}"
+          echo "ref: ${{ github.ref }}"
+      - name: starting
+        uses: actions/checkout@v4
+      - name: Test on dune/dune-testpypi and get the run ID
+        uses: codex-/return-dispatch@v1
+        id: return_dispatch
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-testpypi
+          owner: dune-project
+          ref: ${{ github.event.inputs.testingbranch }}
+          workflow: testing.yml
+          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "${{ env.RUNTESTS }}" }'
+          # workflow_timeout_seconds: 120
+      - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
+        uses: Codex-/await-remote-run@v1
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-testpypi
+          owner: dune-project
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          run_timeout_seconds: 7200
+          poll_interval_ms: 5000
+      - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-project/dune-testpypi
+          workflow: testing.yml
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          workflow_conclusion: success
+          name: packages
+          path: dist
+          if_no_artifact_found: fail
+          # find the latest - might fail...
+          # branch: main
+          # workflow_search: true
+      - name: upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages
+          path: dist
+
+  # test packages
+  test:
+    name: testing tutorial
+    env:
+      # same for dune and github build, different for lund
+      FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        test: [coreA, coreB, extensions]
+        # python: [3.9, 3.13] # 3.13 mpi4py not building on macOS (tested 18/05)
+        python: [3.9, 3.14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: starting
+        uses: actions/checkout@v4
+      - name: pipPreOrNot
+        run: |
+          echo "PIPPRE=--pre" >> $GITHUB_ENV
+      - name: setup python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: environmentLog
+        if: github.event.inputs.logLevel != ''
+        run: echo "LOGLEVEL=${{ github.event.inputs.logLevel }}" >> $GITHUB_ENV
+      - name: environmentUFL
+        run: echo "UFLTAG=${{ github.event.inputs.uflbranch }}" >> $GITHUB_ENV
+      - name: download artifacts
+        uses: actions/download-artifact@v4
+        # if all packages exist on pypi then no artifacts are uploaded so don't fail
+        continue-on-error: true
+        with:
+          name: packages
+          path: dist
+      - name: Install dependencies
+        run: |
+          curl 'https://raw.githubusercontent.com/dune-project/dune-testpypi/main/ossetup' > ossetup
+          bash ./ossetup "$RUNNER_OS"
+        shell: bash
+      - name: Setup venv
+        run: |
+          python3 -m venv dune-env
+          source dune-env/bin/activate
+          PYVERS=$(python3 --version)
+          echo "Selected python version $PYVERS"
+          pip3 install --upgrade pip
+          pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel jupyter
+          # possibly remove the following again since we don't need to test that here
+          pip3 install landlab
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            echo "CURRENTLY PETSC4PY IS DISABLED"
+            # petsc4py is failing at the moment - need to check
+            # at the moment need to downgrade to 20.0.2 https://gitlab.com/petsc/petsc/-/issues/1369
+            # PETSC_CONFIGURE_OPTIONS="--download-scalapack --download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
+            # pip3 install -v petsc petsc4py
+          else
+            echo "CURRENTLY PETSC4PY IS DISABLED on MACOs due to issues with mpif90 - needs checking"
+            # while building petsc the following error is produced
+            #     Fortran compiler you provided with --with-fc=/usr/local/bin/mpif90 cannot be found or does not work.
+            #     Cannot compile FC with /usr/local/bin/mpif90.
+          fi
+        shell: bash
+      - name: pip3 install dune modules
+        run: |
+          ls dist
+          source dune-env/bin/activate
+          pip3 install extract-version
+          python extractreq.py
+          cat requirements.txt
+          pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
+          git clone -b $UFLTAG https://github.com/FEniCS/ufl.git
+          cd ufl
+          pip install .
+        shell: bash
+      - name: Setup dune-py
+        run: |
+          set +e
+          source dune-env/bin/activate
+          pip3 list
+        shell: bash
+      - name: Get number of CPU cores
+        uses: SimenB/github-actions-cpu-cores@v2
+        id: cpu-cores
+      - name: Set tutorial path
+        if: github.event.inputs.download == 'lund'
+        run: echo "FEMPYGITURL=https://gitlab.maths.lu.se/dune/dune-fempy.git" >> $GITHUB_ENV
+      - name: Run tutorial
+        run: |
+          set +e
+          source dune-env/bin/activate
+          echo "USING python"
+          python --version
+          export DUNEPY_DISABLE_PLOTTING=1
+          export DUNE_LOG_LEVEL=$LOGLEVEL
+          export OMP_NUM_THREADS=4
+          python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
+          git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
+          python run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
+        shell: bash
