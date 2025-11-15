@@ -5,6 +5,8 @@ name: test ufl from source
 # Controls when the action will run.
 on:        # yamllint disable-line rule:truthy
   # schedule test for nightly build
+  schedule: # run every Saturday at 4:22
+    - cron: "22 4 * * 6"
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     # Note: the defaults are repeated within the 'env' section
@@ -39,9 +41,9 @@ on:        # yamllint disable-line rule:truthy
         #       e.g. N=2.8.0rc1
         #       otherwise the distributions will not be generated
         #       and the build will fail
-        description: 'fem tag e.g. (master | v2.8.0.1) [master]'
+        description: 'fem tag e.g. (master | v2.8.0.1) [feature/ufl-2025.2.0]'
         required: true
-        default: 'master'
+        default: 'feature/ufl-2025.2.0'
       fempybranch:
         # note: this should be either 'master' or a tag of the form
         #       vN where 'N' is a legal python package version
