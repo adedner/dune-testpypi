@@ -21,9 +21,9 @@ on:        # yamllint disable-line rule:truthy
           - github
           - lund
       uflbranch:
-        description: 'ufl branch/tag e.g. (master | 2025.2.0) [master]'
+        description: 'ufl branch/tag e.g. (master | 2025.2.0) [main]'
         required: true
-        default: 'master'
+        default: 'main'
       branch:
         # note: this should be either 'master' or a tag of the form
         #       vN where 'N' is a legal python package version
@@ -84,7 +84,6 @@ jobs:
       DOWNURL: 'https://gitlab.dune-project.org'
       # same for dune and github build, different for lund
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
-      RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
         if: github.event.inputs.distinct_id != ''
@@ -108,7 +107,6 @@ jobs:
           echo "Using dune-core  branch: ${{ github.event.inputs.branch }}"
           echo "Using dune-fem   branch: ${{ github.event.inputs.fembranch }}"
           echo "Using dune-fempy branch: ${{ github.event.inputs.fempybranch }}"
-          echo "Run tests: ${{ github.event.inputs.runTests }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
         uses: actions/checkout@v4
@@ -121,7 +119,7 @@ jobs:
           owner: dune-project
           ref: ${{ github.event.inputs.testingbranch }}
           workflow: testing.yml
-          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "${{ env.RUNTESTS }}" }'
+          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "false" }'
           # workflow_timeout_seconds: 120
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         uses: Codex-/await-remote-run@v1
