@@ -86,6 +86,12 @@ jobs:
       DOWNURL: 'https://gitlab.dune-project.org'
       # same for dune and github build, different for lund
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
+      logLevel: ${{ github.event.inputs.logLevel || 'Warning' }}
+      branch: ${{ github.event.inputs.branch || 'master' }}
+      fembranch: ${{ github.event.inputs.fembranch || 'master' }}
+      fempybranch: ${{ github.event.inputs.fempybranch || 'master' }}
+      testingbranch: ${{ github.event.inputs.testingbranch || 'master' }}
+      uflbranch: ${{ github.event.inputs.testingbranch || 'main' }}
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
         if: github.event.inputs.distinct_id != ''
@@ -103,12 +109,12 @@ jobs:
         run: |
           echo "Workflow parameters"
           echo "Using github branch    : ${GITHUB_REF#refs/heads/}"
-          echo "Using log level        : ${{ github.event.inputs.logLevel }}"
+          echo "Using log level        : ${{ env.logLevel }}"
           echo "Using download         : ${{ env.DOWNURL }}"
           echo "Using fempy-url        : ${{ env.FEMPYGITURL }}"
-          echo "Using dune-core  branch: ${{ github.event.inputs.branch }}"
-          echo "Using dune-fem   branch: ${{ github.event.inputs.fembranch }}"
-          echo "Using dune-fempy branch: ${{ github.event.inputs.fempybranch }}"
+          echo "Using dune-core  branch: ${{ env.branch }}"
+          echo "Using dune-fem   branch: ${{ env.fembranch }}"
+          echo "Using dune-fempy branch: ${{ env.fempybranch }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
         uses: actions/checkout@v4
@@ -119,9 +125,9 @@ jobs:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-testpypi
           owner: dune-project
-          ref: ${{ github.event.inputs.testingbranch }}
+          ref: ${{ env.testingbranch }}
           workflow: testing.yml
-          workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "false" }'
+          workflow_inputs: '{ "logLevel": "${{ env.logLevel }}", "branch": "${{ env.branch }}", "fembranch": "${{ env.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "false" }'
           # workflow_timeout_seconds: 120
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         uses: Codex-/await-remote-run@v1
@@ -158,6 +164,12 @@ jobs:
     env:
       # same for dune and github build, different for lund
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
+      logLevel: ${{ github.event.inputs.logLevel || 'Warning' }}
+      branch: ${{ github.event.inputs.branch || 'master' }}
+      fembranch: ${{ github.event.inputs.fembranch || 'master' }}
+      fempybranch: ${{ github.event.inputs.fempybranch || 'master' }}
+      testingbranch: ${{ github.event.inputs.testingbranch || 'master' }}
+      uflbranch: ${{ github.event.inputs.testingbranch || 'main' }}
     needs: build
     strategy:
       fail-fast: false
@@ -177,10 +189,10 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: environmentLog
-        if: github.event.inputs.logLevel != ''
-        run: echo "LOGLEVEL=${{ github.event.inputs.logLevel }}" >> $GITHUB_ENV
+        if: env.logLevel != ''
+        run: echo "LOGLEVEL=${{ env.logLevel }}" >> $GITHUB_ENV
       - name: environmentUFL
-        run: echo "UFLTAG=${{ github.event.inputs.uflbranch }}" >> $GITHUB_ENV
+        run: echo "UFLTAG=${{ env.uflbranch }}" >> $GITHUB_ENV
       - name: download artifacts
         uses: actions/download-artifact@v4
         # if all packages exist on pypi then no artifacts are uploaded so don't fail
@@ -250,6 +262,6 @@ jobs:
           export DUNE_LOG_LEVEL=$LOGLEVEL
           export OMP_NUM_THREADS=4
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
-          git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
+          git clone --depth 1 -b ${{ env.fempybranch }} ${{ env.FEMPYGITURL }}
           python run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
         shell: bash
