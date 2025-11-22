@@ -6,7 +6,7 @@ name: test ufl from source
 on:        # yamllint disable-line rule:truthy
   # schedule test for nightly build
   schedule: # run every Saturday at 4:22
-    - cron: "22 4 * * 6"
+    - cron: "30 10 * * 6" # "22 4 * * 6"
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     # Note: the defaults are repeated within the 'env' section
