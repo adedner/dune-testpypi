@@ -6,7 +6,7 @@ name: test ufl from source
 on:        # yamllint disable-line rule:truthy
   # schedule test for nightly build
   schedule: # run every Saturday at 4:22
-    - cron: "30 10 * * 6" # "22 4 * * 6"
+    - cron: "30 11 * * 6" # "22 4 * * 6"
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     # Note: the defaults are repeated within the 'env' section
@@ -54,12 +54,8 @@ on:        # yamllint disable-line rule:truthy
         required: true
         default: 'master'
       testingbranch:
-        # note: this should be either 'master' or a tag of the form
-        #       vN where 'N' is a legal python package version
-        #       e.g. N=2.8.0rc1
-        #       otherwise the distributions will not be generated
-        #       and the build will fail
-        description: 'tag for testing repo e.g. (master | v2.8.0.1) [master]'
+        # note: this should be either 'main' or a branch/tag
+        description: 'tag for testing repo e.g. (master | v2.8.0.1) [main]'
         required: true
         default: 'main'
       logLevel:
@@ -88,9 +84,9 @@ jobs:
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
       logLevel: ${{ github.event.inputs.logLevel || 'Warning' }}
       branch: ${{ github.event.inputs.branch || 'master' }}
-      fembranch: ${{ github.event.inputs.fembranch || 'master' }}
+      fembranch: ${{ github.event.inputs.fembranch || 'feature/ufl-2025.2.0' }}
       fempybranch: ${{ github.event.inputs.fempybranch || 'master' }}
-      testingbranch: ${{ github.event.inputs.testingbranch || 'master' }}
+      testingbranch: ${{ github.event.inputs.testingbranch || 'main' }}
       uflbranch: ${{ github.event.inputs.testingbranch || 'main' }}
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
