@@ -166,6 +166,9 @@ jobs:
         os: [ubuntu-latest, macOS-latest]
         test: [coreA, coreB, extensions]
         # python: [3.9, 3.13] # 3.13 mpi4py not building on macOS (tested 18/05)
+        # NOTE: upload of notebook artifacts is only done by one Python job
+        #       if changing 3.14 then also remember to change the if
+        #       statement in the final step!
         python: [3.9, 3.14]
     runs-on: ${{ matrix.os }}
     steps:
@@ -248,5 +251,44 @@ jobs:
           export OMP_NUM_THREADS=4
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
+          cd dune-fempy/doc
+          make clean
           python run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
+          mkdir ../../notebooks-${{ matrix.test }}
+          cp *.ipynb ../../notebooks-${{ matrix.test }}
+          cd ../..
         shell: bash
+    - name: Upload Notebook
+      if: matrix.os == 'ubuntu-latest' && matrix.python == '3.14'
+      uses: actions/upload-artifact@v4
+      with:
+        name: notebook-${{ matrix.test }}
+        path: notebooks-${{ matrix.test }}
+  pushnbs:
+    name: push notebooks
+    needs: test
+    runs-on: [ubuntu-latest]
+    steps:
+    - name: Download All Noetbooks
+      uses: actions/download-artifact@v5
+      with:
+        path: notebooks
+        pattern: notebooks-*
+        merge-multiple: true
+    - uses: actions/checkout@v3
+      with:
+        repository: https://github.com/dune-project/dune-fem-tutoria
+        ref: 'main'
+        token:  ${{ secrets.ACTIONS_GITHUB_TOKEN }}
+    - name: setup git config
+      run: |
+        git config user.name "GitHub Actions Bot"
+        git config user.email "<>"
+        # git config --unset-all http.https://github.com/.extraheader
+    - name: copy to dune-fem-tutorial
+      run: |
+        git clone https://gitlab.dune-project.org/dune-fem/dune-fempy
+        cp dune-fempy/doc/* dune-fem-tutorial/doc
+        cp notebooks/* dune-fem-tutorial/doc
+        cd dune-fem-tutorial
+        git push -f main

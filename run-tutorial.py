@@ -60,11 +60,11 @@ def execute(process):
     if process in disabled: return [process,'disabled']
 
     # first run script
-    cmd = f'cd dune-fempy/doc ; PYTHONUNBUFFERED=1 python {process}'
+    cmd = f'PYTHONUNBUFFERED=1 python {process}'
 
     print("...",cmd,flush=True)
     start = time.time()
-    ret = os.system(cmd)
+    # ret = os.system(cmd)
     used = time.time() - start
     print("...",process,f"completed ({ret}) in {used}sec",flush=True)
     
@@ -72,7 +72,8 @@ def execute(process):
     if ret == 0:
         notebook = process[:-3] # remove .py
         notebook += "_nb.ipynb"
-        cmd = f'cd dune-fempy/doc ; make {notebook}'
+        # cmd = f'make {notebook}'
+        cmd = f'git checkout {notebook}'
         print("...",cmd,flush=True)
         start = time.time()
         ret = os.system(cmd)
