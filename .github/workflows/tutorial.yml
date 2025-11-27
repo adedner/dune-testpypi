@@ -279,13 +279,13 @@ jobs:
     - name: checkout dune-fem-tutorial
       uses: actions/checkout@v6
       with:
-        repository: https://github.com/dune-project/dune-fem-tutoria
+        repository: dune-project/dune-fem-tutorial
         ref: 'main'
-        token:  ${{ secrets.ACTIONS_GITHUB_TOKEN }}
+        token:  ${{ secrets.PUSH_TUTORIAL_SSH }}
     - name: setup git config
       run: |
-        git config user.name "GitHub Actions Bot"
-        git config user.email "<>"
+        git config --global user.name "GitHub Actions Bot"
+        git config --global user.email "<>"
         # git config --unset-all http.https://github.com/.extraheader
     - name: copy to dune-fem-tutorial
       run: |
@@ -293,4 +293,6 @@ jobs:
         cp dune-fempy/doc/* dune-fem-tutorial/doc
         cp notebooks/* dune-fem-tutorial/doc
         cd dune-fem-tutorial
-        git push -f main
+        git add *.ipynb
+        git commit -m "new notebooks"
+        git push -f

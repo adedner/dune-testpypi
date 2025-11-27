@@ -87,7 +87,7 @@ def execute(process):
 def build(tests,cores):
     tests = [t[:-3] for t in tests] # remove .py
     print("PRECOMPILE",flush=True)
-    cmd = f"cd dune-fempy/data ; python build.py {cores} " + " ".join(tests)
+    cmd = f"cd ../data ; python build.py {cores} " + " ".join(tests) + " ; cd ../doc"
     print("...",cmd,flush=True)
     ret = os.system(cmd)
     print(f"... preccompile completed ({ret})",flush=True)
