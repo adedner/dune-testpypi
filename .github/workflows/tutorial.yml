@@ -262,7 +262,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest' && matrix.python == '3.14'
         uses: actions/upload-artifact@v4
         with:
-          name: notebook-${{ matrix.test }}
+          name: notebooks-${{ matrix.test }}
           path: notebooks-${{ matrix.test }}
 
   pushnbs:
@@ -285,7 +285,7 @@ jobs:
       uses: actions/download-artifact@v5
       with:
         path: notebooks
-        pattern: *.ipynb
+        pattern: notebooks-*
         merge-multiple: true
     - name: copy to dune-fem-tutorial
       run: |
