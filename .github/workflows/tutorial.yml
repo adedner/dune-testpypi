@@ -285,7 +285,7 @@ jobs:
       uses: actions/download-artifact@v5
       with:
         path: notebooks
-        pattern: notebooks-*
+        pattern: *.ipynb
         merge-multiple: true
     - name: copy to dune-fem-tutorial
       run: |
