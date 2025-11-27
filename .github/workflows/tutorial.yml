@@ -253,7 +253,7 @@ jobs:
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
           cd dune-fempy/doc
           make clean
-          python run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
+          python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
           mkdir ../../notebooks-${{ matrix.test }}
           cp *.ipynb ../../notebooks-${{ matrix.test }}
           cd ../..
