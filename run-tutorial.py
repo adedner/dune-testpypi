@@ -58,29 +58,31 @@ def execute(process):
         return [process,'skipped']
     print("START:",process,"...",flush=True)
     if process in disabled: return [process,'disabled']
+    script = process
+    notebook = process[:-3] # remove .py
+    notebook += "_nb.ipynb"
 
     # first run script
-    # cmd = f'PYTHONUNBUFFERED=1 python {process}'
+    # cmd = f'PYTHONUNBUFFERED=1 python {script}'
     cmd = f'git checkout {notebook}'
 
     print("...",cmd,flush=True)
     start = time.time()
     ret = os.system(cmd)
     used = time.time() - start
-    print("...",process,f"completed ({ret}) in {used}sec",flush=True)
+    print("...",script,f"completed ({ret}) in {used}sec",flush=True)
     
     # on success also build notebook
     if False: # ret == 0:
-        notebook = process[:-3] # remove .py
-        notebook += "_nb.ipynb"
         cmd = f'make {notebook}'
         print("...",cmd,flush=True)
         start = time.time()
         ret = os.system(cmd)
-        used = time.time() - start
-        print("...",process,f"completed ({ret}) in {used}sec",flush=True)
+        used2 = time.time() - start
+        print("...",notebook,f"completed ({ret}) in {used2}sec",flush=True)
+        used += used2
 
-    return [process,ret,used]
+    return [script,ret,used]
 
 def build(tests,cores):
     tests = [t[:-3] for t in tests] # remove .py
