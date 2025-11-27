@@ -1,49 +1,59 @@
 # dune-testpypi
 
-upload packages action
-----------------------
+## test tutorial action
 
-This action can be run manually to upload packages to
-a package index (currently `pypi`, `testpypi`, or `none` for simply testing).
-Packaging is done by running the `testing scenario` action on
-`dune-project/dune-testpypi`. The actual running of the tests there (done
-every night anyway) can be disabled in the workflow input fields.
-The installed system packages are also obtained from
-`dune-project/dune-testpypi` by downloading the `ossetup` file from there.
 
-The server to use to download the packages can be specified in the `input`
-field, currently `gitlab (dune)`, `github (adedner)`, or `lund` are
-available.
+This action has to be run manually to build the tutorial and update the
+`doc` folder on the `main` branch of the
+[github tutorial repositroy](https://github.com/dune-project/dune-fem-tutorial).
 
-This action uses the `dune-fem` tutorial to test the packages before upload.
-The 'tag' to use can be different for core and dune-fem modules) can be set as
-parameters. Instead of a 'tag' it is also possible to provide a branch
-name but then uploading is disabled.
+### Steps:
 
-__Note__: for a new version tag, i.e., without a `-devX` ending the tag has to exists for all modules of the given class
-(core or dune-fem) otherwise it is not possible to upload the packages (running without an upload is possible).
-This is to avoid inconsistent package versions where one module is ahead of the others.
-It is possible to upload post-releases for individual modules; before upload these will be tested with the available versions
-on `pypi`.
+1. The `testing` workflow from the [testing repository](https://github.com/dune-project/dune-testpypi)
+   is run to generate the packages with the next available version number. The
+   tests are run by default if not deactivated in the input fields.
+2. The tutorial scripts are executed. This is done for both `ubuntu` and
+   `macOS` with an older and newer version of Python.
+3. Together with the scripts the notebooks themselves are build and stored
+   in artifact for the run with the newer Python on `ubuntu`.
+4. The generated notebooks and the other content from the `doc` folder from
+   the [dune-fempy](https://gitlab.dune-project.org/dune-fem/dune-fempy) repo is pushed
+   to the `main` branch of
+   [github tutorial repositroy](https://github.com/dune-project/dune-fem-tutorial)
 
-__Note__: it is not possible to overwrite an existing package on either `pypi` or `testpypi`. This actions first checks if
-a requested version already exists on the upload package index and if so the dune module will not be cloned but will be
-downloaded from the index (and no upload is attempted).
+### Input parameters:
 
-sync and tag mirrors action
----------------------------
+- Download location: this can be either `dune`, `lund`, or `github`.
+- Branches/tags: these can be provided for modules in the `core` and the
+  `fem` namespace and separately for the `dune-fempy` repo itself.
+- Testing: this activates or deactivates running the tests in the
+  [testing repository](https://github.com/dune-project/dune-testpypi) repository.
 
-This workflow first mirrors the duen gitlab repositories to github (under adedner).
-Tags added to the github repos are preserved. The most recent commit in the
-provided branch (master by default) is tagged with the tag provided in the
-input field. The special name `automatic` (default) can be used to provide
-an automatic tag which is currently a combination of the version number
-extracted from `dune-common/dune.module` followed by `dev` and today's
-date, i.e., a pre-release version is created.
+# Sync/tag mirrors and upload action
 
-In a second step the `upload packages` workflow is started passing on the
-relevant parameters from the workflow input field, e.g., the upload
-location. The download location is always `github`. If this step fails
-then the newly created tag is replaced with same tag but with a prepended
-`failed-` to make it easy to checkout the failed version but also to reuse
-the tag for a new upload attempt.
+This first syncs the github mirrors on `adedner` with the repos on the dune
+gitlab server. This version is then tagged with the next available Python
+package version available for the dune modules. After that the `test tutorial action` described above
+is called with the source set to `github`, i.e, the just synced repos are
+used to build the tutorial. On success the packages can be pushed to pypi and a new version
+of the tutorial can be deployed.
+
+### Steps:
+
+1. First the github repos are synced and tagged. By default the tag used is
+   determined automatically which means the next available version on `pypi` is used.
+   But a tag can be prescribed.
+2. The `test tutorial action` is called using the `github` repos as source
+3. On failure the tag is removed again from the repos
+   On success the repositories are uploaded to the destination requested
+   and the `main` branch of the 
+   [github tutorial repositroy](https://github.com/dune-project/dune-fem-tutorial)
+   is pushed into another branch using the tag as name.
+
+### Input parameters:
+
+
+# Test ufl from source action
+
+This is run every week in the night from Friday to Saturday testing the
+tutorial using the developer version of ufl.
