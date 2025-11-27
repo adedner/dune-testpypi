@@ -29,7 +29,7 @@ This action has to be run manually to build the tutorial and update the
 - Testing: this activates or deactivates running the tests in the
   [testing repository](https://github.com/dune-project/dune-testpypi) repository.
 
-# Sync/tag mirrors and upload action
+## Sync/tag mirrors and upload action
 
 This first syncs the github mirrors on `adedner` with the repos on the dune
 gitlab server. This version is then tagged with the next available Python
@@ -53,7 +53,7 @@ of the tutorial can be deployed.
 ### Input parameters:
 
 
-# Test ufl from source action
+## Test ufl from source action
 
 This is run every week in the night from Friday to Saturday testing the
 tutorial using the developer version of ufl.

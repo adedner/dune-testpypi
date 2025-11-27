@@ -289,10 +289,10 @@ jobs:
         merge-multiple: true
     - name: copy to dune-fem-tutorial
       run: |
-        echo $PWD
+        # this is run inside dune-fem-tutorial folder
         ls -l
         git clone https://gitlab.dune-project.org/dune-fem/dune-fempy
-        cp dune-fempy/doc/* doc
+        cp -r dune-fempy/doc/* doc
         cp notebooks/* doc
         git add doc/*
         git commit -m "new notebooks"
