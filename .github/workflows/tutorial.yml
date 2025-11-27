@@ -258,12 +258,13 @@ jobs:
           cp *.ipynb ../../notebooks-${{ matrix.test }}
           cd ../..
         shell: bash
-    - name: Upload Notebook
-      if: matrix.os == 'ubuntu-latest' && matrix.python == '3.14'
-      uses: actions/upload-artifact@v4
-      with:
-        name: notebook-${{ matrix.test }}
-        path: notebooks-${{ matrix.test }}
+      - name: Upload Notebook
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.14'
+        uses: actions/upload-artifact@v4
+        with:
+          name: notebook-${{ matrix.test }}
+          path: notebooks-${{ matrix.test }}
+
   pushnbs:
     name: push notebooks
     needs: test
@@ -275,7 +276,8 @@ jobs:
         path: notebooks
         pattern: notebooks-*
         merge-multiple: true
-    - uses: actions/checkout@v3
+    - name: checkout dune-fem-tutorial
+      uses: actions/checkout@v6
       with:
         repository: https://github.com/dune-project/dune-fem-tutoria
         ref: 'main'
