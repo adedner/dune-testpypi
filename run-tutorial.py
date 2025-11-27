@@ -63,8 +63,8 @@ def execute(process):
     notebook += "_nb.ipynb"
 
     # first run script
-    # cmd = f'PYTHONUNBUFFERED=1 python {script}'
-    cmd = f'git checkout {notebook}'
+    cmd = f'PYTHONUNBUFFERED=1 python {script}'
+    # cmd = f'git checkout {notebook}'
 
     print("...",cmd,flush=True)
     start = time.time()
@@ -73,7 +73,7 @@ def execute(process):
     print("...",script,f"completed ({ret}) in {used}sec",flush=True)
     
     # on success also build notebook
-    if False: # ret == 0:
+    if ret == 0:
         cmd = f'make {notebook}'
         print("...",cmd,flush=True)
         start = time.time()

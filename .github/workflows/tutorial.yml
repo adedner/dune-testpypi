@@ -278,7 +278,7 @@ jobs:
         ssh-key:  ${{ secrets.PUSH_TUTORIAL_SSH }}
     - name: setup git config
       run: |
-        git config --global user.name "GitHub Actions Bot"
+        git config --global user.name "Tutorial Bot"
         git config --global user.email "<>"
         # git config --unset-all http.https://github.com/.extraheader
     - name: Download All Noetbooks
@@ -292,7 +292,7 @@ jobs:
         # this is run inside dune-fem-tutorial folder
         ls -l
         git clone https://gitlab.dune-project.org/dune-fem/dune-fempy
-        cp -r dune-fempy/doc/* doc
+        cp -rL dune-fempy/doc/* doc
         cp notebooks/* doc
         git add doc/*
         git commit -m "new notebooks"
