@@ -200,14 +200,14 @@ jobs:
           PYVERS=$(python3 --version)
           echo "Selected python version $PYVERS"
           pip3 install --upgrade pip
-          pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel jupyter
+          pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel jupyter jupytext pandas
           # possibly remove the following again since we don't need to test that here
           pip3 install landlab
           if [ "$RUNNER_OS" == "Linux" ]; then
-            echo "CURRENTLY PETSC4PY IS DISABLED"
+            # echo "CURRENTLY PETSC4PY IS DISABLED"
             # petsc4py is failing at the moment - need to check
             # at the moment need to downgrade to 20.0.2 https://gitlab.com/petsc/petsc/-/issues/1369
-            # PETSC_CONFIGURE_OPTIONS="--download-scalapack --download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
+            # export PETSC_CONFIGURE_OPTIONS="--download-scalapack --download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
             # pip3 install -v petsc petsc4py
           else
             echo "CURRENTLY PETSC4PY IS DISABLED on MACOs due to issues with mpif90 - needs checking"
