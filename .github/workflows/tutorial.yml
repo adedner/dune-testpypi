@@ -281,7 +281,7 @@ jobs:
       with:
         repository: dune-project/dune-fem-tutorial
         ref: 'main'
-        token:  ${{ secrets.PUSH_TUTORIAL_SSH }}
+        ssh-key:  ${{ secrets.PUSH_TUTORIAL_SSH }}
     - name: setup git config
       run: |
         git config --global user.name "GitHub Actions Bot"
