@@ -72,7 +72,7 @@ def execute(process):
     if ret == 0:
         notebook = process[:-3] # remove .py
         notebook += "_nb.ipynb"
-        cmd = f'cd dune-fempy/doc ; make {process}'
+        cmd = f'cd dune-fempy/doc ; make {notebook}'
         print("...",cmd,flush=True)
         start = time.time()
         ret = os.system(cmd)
