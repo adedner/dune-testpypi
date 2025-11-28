@@ -314,11 +314,11 @@ jobs:
         workflow: tutorial.yml
         workflow_inputs: '{ "version": "unstable" }'
     - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: Codex-/await-remote-run@v1
-        with:
-          token: ${{ secrets.Dispatch_Secret }}
-          repo: dune-fem-tutorial
-          owner: dune-project
-          run_id: ${{ steps.return_dispatch.outputs.run_id }}
-          run_timeout_seconds: 7200
-          poll_interval_ms: 5000
+      uses: Codex-/await-remote-run@v1
+      with:
+        token: ${{ secrets.Dispatch_Secret }}
+        repo: dune-fem-tutorial
+        owner: dune-project
+        run_id: ${{ steps.return_dispatch.outputs.run_id }}
+        run_timeout_seconds: 7200
+        poll_interval_ms: 5000
