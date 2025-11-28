@@ -210,8 +210,11 @@ jobs:
             # echo "CURRENTLY PETSC4PY IS DISABLED"
             # petsc4py is failing at the moment - need to check
             # at the moment need to downgrade to 20.0.2 https://gitlab.com/petsc/petsc/-/issues/1369
-            export PETSC_CONFIGURE_OPTIONS="--download-scalapack --download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
-            pip3 install -v petsc petsc4py
+            # export PETSC_CONFIGURE_OPTIONS="--download-scalapack --download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
+            # pip3 install -v petsc petsc4py
+            sudo apt-get install -y suitesparse
+            sudo apt-get install -y petsc-dev
+            sudo apt-get install -y python3-petsc4py-real
           else
             echo "CURRENTLY PETSC4PY IS DISABLED on MACOs due to issues with mpif90 - needs checking"
             # while building petsc the following error is produced
