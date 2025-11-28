@@ -294,6 +294,7 @@ jobs:
       run: |
         # this is run inside dune-fem-tutorial folder
         rm -rf doc
+        mkdir doc
         git clone https://gitlab.dune-project.org/dune-fem/dune-fempy
         cp -rL dune-fempy/doc/* doc
         cp notebooks/* doc
