@@ -212,7 +212,7 @@ jobs:
             # at the moment need to downgrade to 20.0.2 https://gitlab.com/petsc/petsc/-/issues/1369
             # export PETSC_CONFIGURE_OPTIONS="--download-scalapack --download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
             # pip3 install -v petsc petsc4py
-            sudo apt-get install -y suitesparse
+            sudo apt-get install -y libsuitesparse-dev
             sudo apt-get install -y petsc-dev
             sudo apt-get install -y python3-petsc4py-real
           else
