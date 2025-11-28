@@ -63,8 +63,8 @@ def execute(process):
     notebook += "_nb.ipynb"
 
     # first run script
-    cmd = f'PYTHONUNBUFFERED=1 python {script}'
-    # cmd = f'git checkout {notebook}'
+    # cmd = f'PYTHONUNBUFFERED=1 python {script}'
+    cmd = f'git checkout {notebook}'
 
     print("...",cmd,flush=True)
     start = time.time()
