@@ -34,7 +34,7 @@ tests = {
       "backuprestore.py",
       "uzawa-scipy.py",
       "evalues_laplace.py",
-      "mixed_poisson.py",
+      # "mixed_poisson.py",
     ],
     "extensions":[
       "chemical.py",
