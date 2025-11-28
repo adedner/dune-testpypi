@@ -293,12 +293,32 @@ jobs:
     - name: copy to dune-fem-tutorial
       run: |
         # this is run inside dune-fem-tutorial folder
-        rm -rf doc
-        mkdir doc
-        git clone https://gitlab.dune-project.org/dune-fem/dune-fempy
-        cp -rL dune-fempy/doc/* doc
+        git rm -r doc
+        git clone --depth 1 https://gitlab.dune-project.org/dune-fem/dune-fempy
+        cp -rL dune-fempy/doc .
+        cp conf.py doc
         cp notebooks/* doc
         cp conf.py doc
-        git add doc/*
+        git add doc
         git commit -m "new notebooks"
         git push -f
+    - name: build unstable doc
+      if: ${{ github.event.inputs.distinct_id == '' }}
+      uses: codex-/return-dispatch@v1
+      id: return_dispatch
+      with:
+        token: ${{ secrets.Dispatch_Secret }}
+        repo: dune-fem-tutorial
+        owner: dune-project
+        ref: main
+        workflow: tutorial.yml
+        workflow_inputs: '{ "version": "unstable" }'
+    - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
+        uses: Codex-/await-remote-run@v1
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-fem-tutorial
+          owner: dune-project
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          run_timeout_seconds: 7200
+          poll_interval_ms: 5000
