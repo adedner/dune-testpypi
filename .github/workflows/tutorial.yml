@@ -277,7 +277,7 @@ jobs:
       uses: actions/checkout@v6
       with:
         repository: dune-project/dune-fem-tutorial
-        ref: 'main'
+        ref: 'unstable'
         ssh-key:  ${{ secrets.PUSH_TUTORIAL_SSH }}
     - name: setup git config
       run: |
@@ -293,7 +293,6 @@ jobs:
     - name: copy to dune-fem-tutorial
       run: |
         # this is run inside dune-fem-tutorial folder
-        git checkout unstable
         rm -rf doc
         git clone https://gitlab.dune-project.org/dune-fem/dune-fempy
         cp -rL dune-fempy/doc/* doc
