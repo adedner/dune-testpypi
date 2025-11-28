@@ -293,10 +293,12 @@ jobs:
     - name: copy to dune-fem-tutorial
       run: |
         # this is run inside dune-fem-tutorial folder
-        ls -l
+        git checkout unstable
+        rm -rf doc
         git clone https://gitlab.dune-project.org/dune-fem/dune-fempy
         cp -rL dune-fempy/doc/* doc
         cp notebooks/* doc
+        cp conf.py doc
         git add doc/*
         git commit -m "new notebooks"
         git push -f
