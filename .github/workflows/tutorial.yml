@@ -249,7 +249,7 @@ jobs:
           source dune-env/bin/activate
           echo "USING python"
           python --version
-          export DUNEPY_DISABLE_PLOTTING=1
+          # export DUNEPY_DISABLE_PLOTTING=1
           export DUNE_LOG_LEVEL=$LOGLEVEL
           export OMP_NUM_THREADS=4
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"

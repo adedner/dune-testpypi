@@ -63,7 +63,7 @@ def execute(process):
     notebook += "_nb.ipynb"
 
     # first run script
-    cmd = f'PYTHONUNBUFFERED=1 python {script}'
+    cmd = f'PYTHONUNBUFFERED=1 DUNEPY_DISABLE_PLOTTING=1 python {script}'
     # cmd = f'git checkout {notebook}'
 
     print("...",cmd,flush=True)

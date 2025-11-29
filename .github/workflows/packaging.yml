@@ -125,6 +125,8 @@ jobs:
         with:
           name: packages
           path: dist
+      - outputs:
+        VERSION: ${{ env.RUNTESTS }}
 
   # https://github.com/marketplace/actions/pypi-publish
   upload:
@@ -135,6 +137,8 @@ jobs:
     # environment: pypi # add this to pypi repos
     permissions:
       id-token: write
+    env:
+      VERSION: ${{ needs.synctag.outputs.VERSION }}
     steps:
       - name: download artifacts
         uses: actions/download-artifact@v4
@@ -161,4 +165,39 @@ jobs:
           ## Test if required version for core is available on pypi and use
           ## instead of git?
           # skip_existing: true
-
+      - name: checkout dune-fem-tutorial
+        uses: actions/checkout@v6
+        with:
+          repository: dune-project/dune-fem-tutorial
+          ref: 'tutorial/unstable'
+          ssh-key: ${{ secrets.PUSH_TUTORIAL_SSH }}
+      - name: setup git config
+        run: |
+          git config --global user.name "Tutorial Bot"
+          git config --global user.email "<>"
+          # git config --unset-all http.https://github.com/.extraheader
+      - name: rename unstable branch to new version
+        run: |
+          # this is run inside dune-fem-tutorial folder
+          git checkout tutorial/unstable
+          git checkout -b tutorial/${{ env.VERSION }}
+          git push -u origin tutorial/${{ env.VERSION }}
+      - name: build unstable doc
+        uses: codex-/return-dispatch@v1
+        id: return_dispatch
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-fem-tutorial
+          owner: dune-project
+          ref: main
+          workflow: tutorial.yml
+          workflow_inputs: '{ "version": "${{ env.VERSION }}" }'
+      - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
+        uses: Codex-/await-remote-run@v1
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-fem-tutorial
+          owner: dune-project
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          run_timeout_seconds: 7200
+          poll_interval_ms: 5000
