@@ -294,13 +294,14 @@ jobs:
       run: |
         # this is run inside dune-fem-tutorial folder
         git rm -r doc
-        git clone --depth 1 https://gitlab.dune-project.org/dune-fem/dune-fempy
+        git commit -m "remove old doc..."
+        git clone --depth 1 https://gitlab.dune-project.org/dune-fem/dune-fempy.git
         cp -rL dune-fempy/doc .
         cp conf.py doc
         cp notebooks/* doc
         cp conf.py doc
         git add doc
-        git commit -m "new notebooks"
+        git commit -m "...add new doc"
         git push -f
     - name: build unstable doc
       if: ${{ github.event.inputs.distinct_id == '' }}
