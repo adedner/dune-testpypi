@@ -198,13 +198,12 @@ jobs:
         shell: bash
       - name: Setup venv
         run: |
-          python3 -m venv dune-env
+          python3 -m venv dune-env  --system-site-packages
           source dune-env/bin/activate
           PYVERS=$(python3 --version)
           echo "Selected python version $PYVERS"
           pip3 install --upgrade pip
           pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel jupyter jupytext pandas
-          # possibly remove the following again since we don't need to test that here
           pip3 install landlab
           if [ "$RUNNER_OS" == "Linux" ]; then
             # echo "CURRENTLY PETSC4PY IS DISABLED"
@@ -221,6 +220,7 @@ jobs:
             #     Fortran compiler you provided with --with-fc=/usr/local/bin/mpif90 cannot be found or does not work.
             #     Cannot compile FC with /usr/local/bin/mpif90.
           fi
+          pip3 install scikit-umfpack
         shell: bash
       - name: pip3 install dune modules
         run: |
