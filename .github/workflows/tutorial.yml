@@ -214,13 +214,13 @@ jobs:
             sudo apt-get install -y libsuitesparse-dev
             sudo apt-get install -y petsc-dev
             sudo apt-get install -y python3-petsc4py-real
+            pip3 install scikit-umfpack
           else
-            echo "CURRENTLY PETSC4PY IS DISABLED on MACOs due to issues with mpif90 - needs checking"
+            echo "CURRENTLY PETSC4PY AND SCIKIT-UMFPACK IS DISABLED on MACOs due to issues with mpif90 - needs checking"
             # while building petsc the following error is produced
             #     Fortran compiler you provided with --with-fc=/usr/local/bin/mpif90 cannot be found or does not work.
             #     Cannot compile FC with /usr/local/bin/mpif90.
           fi
-          pip3 install scikit-umfpack
         shell: bash
       - name: pip3 install dune modules
         run: |
