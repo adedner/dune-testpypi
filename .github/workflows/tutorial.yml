@@ -304,7 +304,6 @@ jobs:
         git commit -m "...add new doc"
         git push -f
     - name: build unstable doc
-      if: ${{ github.event.inputs.distinct_id == '' }}
       uses: codex-/return-dispatch@v1
       id: return_dispatch
       with:
