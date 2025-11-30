@@ -258,7 +258,9 @@ jobs:
           make clean
           python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
           mkdir ../../notebooks-${{ matrix.test }}
-          cp *.ipynb ../../notebooks-${{ matrix.test }}
+          git status --porcelain | awk 'match($1, "M"){print $2}' > newfiles.txt
+          cat newfiles.txt | xargs cp -t ../../notebooks-${{ matrix.test }}
+          # cp *.ipynb ../../notebooks-${{ matrix.test }}
           cd ../..
         shell: bash
       - name: Upload Notebook
@@ -298,7 +300,7 @@ jobs:
         git clone --depth 1 https://gitlab.dune-project.org/dune-fem/dune-fempy.git
         cp -rL dune-fempy/doc .
         cp conf.py doc
-        cp notebooks/* doc
+        cp -r notebooks/* doc
         cp conf.py doc
         git add doc
         git commit -m "...add new doc"
