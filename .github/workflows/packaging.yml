@@ -127,7 +127,7 @@ jobs:
           name: packages
           path: dist
     outputs:
-      VERSION: ${{ env.RUNTESTS }}
+      VERSION: ${{ env.TAG }}
 
   # https://github.com/marketplace/actions/pypi-publish
   upload:
@@ -180,9 +180,10 @@ jobs:
       - name: rename unstable branch to new version
         run: |
           # this is run inside dune-fem-tutorial folder
-          git checkout tutorial/unstable
           git checkout -b tutorial/${{ env.VERSION }}
           sed -i -e "s/'latest'/${{ env.VERSION }}/g" doc/index.rst
+          git add doc/index.rst
+          git commit -m "update version tag"
           git push -u origin tutorial/${{ env.VERSION }}
       - name: build unstable doc
         uses: codex-/return-dispatch@v1
