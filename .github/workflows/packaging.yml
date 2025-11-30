@@ -10,7 +10,7 @@ on:        # yamllint disable-line rule:truthy
         type: choice
         description: 'upload (testpypi | pypi | none) [pypi]'
         required: true
-        default: 'testpypi'
+        default: 'pypi'
         options:
           - pypi
           - testpypi
@@ -132,7 +132,7 @@ jobs:
   # https://github.com/marketplace/actions/pypi-publish
   upload:
     name: uploading
-    if: ${{ github.event.inputs.upload != 'none' && github.event.inputs.upload != '' }}
+    # if: ${{ github.event.inputs.upload != 'none' && github.event.inputs.upload != '' }}
     needs: synctag
     runs-on: [ubuntu-latest]
     # environment: pypi # add this to pypi repos
