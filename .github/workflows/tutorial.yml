@@ -257,11 +257,12 @@ jobs:
           cd dune-fempy/doc
           make clean
           python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
-          mkdir ../../notebooks-${{ matrix.test }}
+          cd ..
+          mkdir ../notebooks-${{ matrix.test }}
           git status --porcelain | awk 'match($1, "M"){print $2}' > newfiles.txt
-          cat newfiles.txt | xargs cp -t ../../notebooks-${{ matrix.test }}
+          cat newfiles.txt | xargs cp -t ../notebooks-${{ matrix.test }}
           # cp *.ipynb ../../notebooks-${{ matrix.test }}
-          cd ../..
+          cd ..
         shell: bash
       - name: Upload Notebook
         if: matrix.os == 'ubuntu-latest' && matrix.python == '3.14'
