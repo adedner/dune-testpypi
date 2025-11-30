@@ -180,7 +180,7 @@ jobs:
       - name: rename unstable branch to new version
         run: |
           # this is run inside dune-fem-tutorial folder
-          git checkout -b tutorial/${{ env.VERSION }}
+          git checkout -b tutorial/v${{ env.VERSION }}
           sed -i -e "s/'latest'/${{ env.VERSION }}/g" doc/index.rst
           git add doc/index.rst
           git commit -m "update version tag"
