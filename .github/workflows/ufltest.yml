@@ -259,5 +259,8 @@ jobs:
           export OMP_NUM_THREADS=4
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
           git clone --depth 1 -b ${{ env.fempybranch }} ${{ env.FEMPYGITURL }}
-          python run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
+          cd dune-fempy/doc
+          make clean
+          python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
+          cd ..
         shell: bash
