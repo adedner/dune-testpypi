@@ -194,7 +194,7 @@ jobs:
           owner: dune-project
           ref: main
           workflow: tutorial.yml
-          workflow_inputs: '{ "version": "${{ env.VERSION }}" }'
+          workflow_inputs: '{ "version": "v${{ env.VERSION }}" }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         uses: Codex-/await-remote-run@v1
         with:
