@@ -184,7 +184,7 @@ jobs:
           sed -i -e "s/'latest'/${{ env.VERSION }}/g" doc/index.rst
           git add doc/index.rst
           git commit -m "update version tag"
-          git push -u origin tutorial/${{ env.VERSION }}
+          git push -u origin tutorial/v${{ env.VERSION }}
       - name: build unstable doc
         uses: codex-/return-dispatch@v1
         id: return_dispatch
