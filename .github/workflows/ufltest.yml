@@ -231,6 +231,7 @@ jobs:
           pip3 install extract-version
           python extractreq.py
           cat requirements.txt
+          pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel jupyter jupytext pandas
           pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
           git clone -b $UFLTAG https://github.com/FEniCS/ufl.git
           cd ufl

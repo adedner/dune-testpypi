@@ -224,6 +224,7 @@ jobs:
         shell: bash
       - name: pip3 install dune modules
         run: |
+          export CXXFLAGS=-Werror=deprecated-declarations
           ls dist
           source dune-env/bin/activate
           pip3 install extract-version
@@ -252,6 +253,7 @@ jobs:
           # export DUNEPY_DISABLE_PLOTTING=1
           export DUNE_LOG_LEVEL=$LOGLEVEL
           export OMP_NUM_THREADS=4
+          export DEFAULT_CXXFLAGS="-O3 -Werror=deprecated-declarations"
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
           cd dune-fempy/doc
