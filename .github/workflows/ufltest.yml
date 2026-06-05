@@ -113,9 +113,9 @@ jobs:
           echo "Using dune-fempy branch: ${{ env.fempybranch }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test on dune/dune-testpypi and get the run ID
-        uses: codex-/return-dispatch@v1
+        uses: codex-/return-dispatch@v2
         id: return_dispatch
         with:
           token: ${{ secrets.Dispatch_Secret }}
@@ -126,7 +126,7 @@ jobs:
           workflow_inputs: '{ "logLevel": "${{ env.logLevel }}", "branch": "${{ env.branch }}", "fembranch": "${{ env.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "false" }'
           # workflow_timeout_seconds: 120
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: Codex-/await-remote-run@v1
+        uses: Codex-/await-remote-run@v2
         with:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-testpypi
@@ -135,7 +135,7 @@ jobs:
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v8
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: dune-project/dune-testpypi
@@ -149,7 +149,7 @@ jobs:
           # branch: main
           # workflow_search: true
       - name: upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: packages
           path: dist
@@ -176,7 +176,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: starting
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: pipPreOrNot
         run: |
           echo "PIPPRE=--pre" >> $GITHUB_ENV
@@ -190,7 +190,7 @@ jobs:
       - name: environmentUFL
         run: echo "UFLTAG=${{ env.uflbranch }}" >> $GITHUB_ENV
       - name: download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         # if all packages exist on pypi then no artifacts are uploaded so don't fail
         continue-on-error: true
         with:
