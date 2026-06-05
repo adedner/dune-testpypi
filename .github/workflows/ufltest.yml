@@ -75,6 +75,8 @@ on:        # yamllint disable-line rule:truthy
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  env:
+    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   build:
     name: build
     runs-on: [ubuntu-latest]
@@ -135,7 +137,7 @@ jobs:
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: dawidd6/action-download-artifact@v8
+        uses: dawidd6/action-download-artifact@v9
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: dune-project/dune-testpypi
@@ -190,7 +192,7 @@ jobs:
       - name: environmentUFL
         run: echo "UFLTAG=${{ env.uflbranch }}" >> $GITHUB_ENV
       - name: download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v9
         # if all packages exist on pypi then no artifacts are uploaded so don't fail
         continue-on-error: true
         with:

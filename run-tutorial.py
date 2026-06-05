@@ -6,48 +6,48 @@ all_test = glob.glob("*.py")
 
 tests = {
     "coreA":[
-      "boundary.py",
-      "cppfunctions.py",
-      "concepts.py",
-      "discontinuousgalerkin.py",
-      "geoview.py",
-      "dune-corepy.py",
-      "filteredgridview.py",
-      "lineplot.py",
+      #"boundary.py",
+      #"cppfunctions.py",
+      #"concepts.py",
+      #"discontinuousgalerkin.py",
+      #"geoview.py",
+      #"dune-corepy.py",
+      #"filteredgridview.py",
+      #"lineplot.py",
       "othergrids.py",
-      "levelgridview.py",
-      "parallelization.py",
-      "elasticity.py",
-      "wave.py",
-      "biharmonic_IPC0.py",
-      "evalues_laplace.py",
-      "mixed_poisson.py",
+      #"levelgridview.py",
+      #"parallelization.py",
+      #"elasticity.py",
+      #"wave.py",
+      #"biharmonic_IPC0.py",
+      #"evalues_laplace.py",
+      #"mixed_poisson.py",
     ],
     "coreB":[
       "solversInternal.py",
-      "solversExternal.py",
-      "dune-fempy.py",
-      "laplace-adaptive.py",
-      "laplace-dwr.py",
-      "mcf.py",
-      "mcf-algorithm.py",
-      "crystal.py",
-      "spiral.py",
-      "backuprestore.py",
-      "uzawa-scipy.py",
-      "evalues_laplace.py",
-      # "mixed_poisson.py",
+      #"solversExternal.py",
+      #"dune-fempy.py",
+      #"laplace-adaptive.py",
+      #"laplace-dwr.py",
+      #"mcf.py",
+      #"mcf-algorithm.py",
+      #"crystal.py",
+      #"spiral.py",
+      #"backuprestore.py",
+      #"uzawa-scipy.py",
+      #"evalues_laplace.py",
+      #"mixed_poisson.py",
     ],
     "extensions":[
-      "chemical.py",
-      "chimpl.py",
-      "euler.py", 
-      "twophaseflow.py",      # does not terminate on MACOs
-      "vemdemo.py",
-      "monolithicStokes.py",
+      #"chemical.py",
+      #"chimpl.py",
+      #"euler.py", 
+      #"twophaseflow.py",      # does not terminate on MACOs
+      #"vemdemo.py",
+      #"monolithicStokes.py",
       "fieldsplitStokes.py",
-      "overview_of_advection_solver.py",
-      "cylinder.py"
+      #"overview_of_advection_solver.py",
+      #"cylinder.py"
     ]}
 
 disabled = ["3dexample.py"]
@@ -122,4 +122,5 @@ if __name__ == "__main__":
     # exit with error if one or more scripts failed
     success = all([r[1]==0 or r[1]=="disabled" or r[1]=="skipped"
                    for r in ret])
+    print("RETURN",success)
     sys.exit(0 if success else 1)

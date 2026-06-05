@@ -36,6 +36,8 @@ on:        # yamllint disable-line rule:truthy
           - error
 
 jobs:
+  env:
+    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   # build and test packages
   synctag:
     name: sync and tag
@@ -106,7 +108,7 @@ jobs:
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
         if: github.event.inputs.tag != 'cleanup'
-        uses: dawidd6/action-download-artifact@v8
+        uses: dawidd6/action-download-artifact@v9
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: adedner/dune-testpypi
@@ -142,7 +144,7 @@ jobs:
       VERSION: ${{ needs.synctag.outputs.VERSION }}
     steps:
       - name: download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v9
         with:
           name: packages
           path: dist

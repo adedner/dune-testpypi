@@ -82,6 +82,7 @@ jobs:
     name: build
     runs-on: [ubuntu-latest]
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       DOWNURL: 'https://gitlab.dune-project.org'
       # same for dune and github build, different for lund
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
@@ -158,6 +159,7 @@ jobs:
     name: testing tutorial
     env:
       # same for dune and github build, different for lund
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
     needs: build
     strategy:
@@ -234,7 +236,7 @@ jobs:
         shell: bash
       - name: Setup dune-py
         run: |
-          set +e
+          set -e
           source dune-env/bin/activate
           pip3 list
         shell: bash
@@ -246,7 +248,7 @@ jobs:
         run: echo "FEMPYGITURL=https://gitlab.maths.lu.se/dune/dune-fempy.git" >> $GITHUB_ENV
       - name: Run tutorial
         run: |
-          set +e
+          set -e
           source dune-env/bin/activate
           echo "USING python"
           python --version
