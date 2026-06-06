@@ -1,59 +1,58 @@
 import multiprocessing
 import os, glob, sys, time
+from functools import partial
 
 # Creating the tuple of all the tests
 all_test = glob.glob("*.py")
 
 tests = {
     "coreA":[
-      #"boundary.py",
-      #"cppfunctions.py",
-      #"concepts.py",
-      #"discontinuousgalerkin.py",
-      #"geoview.py",
-      #"dune-corepy.py",
-      #"filteredgridview.py",
-      #"lineplot.py",
+      "boundary.py",
+      "cppfunctions.py",
+      "concepts.py",
+      "discontinuousgalerkin.py",
+      "geoview.py",
+      "dune-corepy.py",
+      "filteredgridview.py",
+      "lineplot.py",
       "othergrids.py",
-      #"levelgridview.py",
-      #"parallelization.py",
-      #"elasticity.py",
-      #"wave.py",
-      #"biharmonic_IPC0.py",
-      #"evalues_laplace.py",
-      #"mixed_poisson.py",
+      "levelgridview.py",
+      "parallelization.py",
+      "elasticity.py",
+      "wave.py",
+      "biharmonic_IPC0.py",
     ],
     "coreB":[
       "solversInternal.py",
-      #"solversExternal.py",
-      #"dune-fempy.py",
-      #"laplace-adaptive.py",
-      #"laplace-dwr.py",
-      #"mcf.py",
-      #"mcf-algorithm.py",
-      #"crystal.py",
-      #"spiral.py",
-      #"backuprestore.py",
-      #"uzawa-scipy.py",
-      #"evalues_laplace.py",
-      #"mixed_poisson.py",
+      "solversExternal.py",
+      "dune-fempy.py",
+      "laplace-adaptive.py",
+      "laplace-dwr.py",
+      "mcf.py",
+      "mcf-algorithm.py",
+      "crystal.py",
+      "spiral.py",
+      "backuprestore.py",
+      "uzawa-scipy.py",
+      "evalues_laplace.py",
+      # "mixed_poisson.py",      # malloc(): unsorted double linked list corrupted
     ],
     "extensions":[
-      #"chemical.py",
-      #"chimpl.py",
-      #"euler.py", 
-      #"twophaseflow.py",      # does not terminate on MACOs
-      #"vemdemo.py",
-      #"monolithicStokes.py",
+      "chemical.py",
+      "chimpl.py",
+      "euler.py", 
+      "twophaseflow.py",      # does not terminate on MACOs
+      "vemdemo.py",
+      "monolithicStokes.py",
       "fieldsplitStokes.py",
-      #"overview_of_advection_solver.py",
-      #"cylinder.py"
+      "overview_of_advection_solver.py",
+      "cylinder.py"
     ]}
 
 disabled = ["3dexample.py"]
 
 # This block of code enables us to call the script from command line.
-def execute(process):
+def execute(process, make_notebook):
     if sys.version_info.minor < 10 and "overview_of_advection_solver" in process:
         # Leads to ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
         print("Skipping landlab example due to issue with Python 3.9")
@@ -75,14 +74,15 @@ def execute(process):
     print("...",script,f"completed ({ret}) in {used}sec",flush=True)
     
     # on success also build notebook
-    if ret == 0:
-        cmd = f'make {notebook}'
-        print("...",cmd,flush=True)
-        start = time.time()
-        ret = os.system(cmd)
-        used2 = time.time() - start
-        print("...",notebook,f"completed ({ret}) in {used2}sec",flush=True)
-        used += used2
+    if make_notebook == 1:
+        if ret == 0:
+            cmd = f'make {notebook}'
+            print("...",cmd,flush=True)
+            start = time.time()
+            ret = os.system(cmd)
+            used2 = time.time() - start
+            print("...",notebook,f"completed ({ret}) in {used2}sec",flush=True)
+            used += used2
 
     return [script,ret,used]
 
@@ -101,6 +101,8 @@ if __name__ == "__main__":
     cores = sys.argv[2]      # how many cores are available to run scripts in parallel
                              # used only for prebuild - actual scripts are
                              # run in serial at the moment (see Pool below)
+    make_notebook = int(sys.argv[3])
+    print("Make notebook?", make_notebook)
 
     print(f"Have {cores} cores available",flush=True)
 
@@ -112,7 +114,7 @@ if __name__ == "__main__":
 
     # now run the actual script subset could be in parallel but currently isn't
     process_pool = multiprocessing.Pool(processes = 1)
-    ret = process_pool.map(execute, tests[examples])
+    ret = process_pool.map(partial(execute,make_notebook=make_notebook), tests[examples])
 
     # print which script succeeded and which failed
     ret.sort()
