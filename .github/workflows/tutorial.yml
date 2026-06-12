@@ -61,6 +61,11 @@ on:        # yamllint disable-line rule:truthy
         description: run testing scenarios [true]
         required: true
         default: true
+      uploadNB:
+        type: boolean
+        description: upload new notebooks [true]
+        required: true
+        default: true
       logLevel:
         type: choice
         description: 'Log level [Warning]'
@@ -111,11 +116,12 @@ jobs:
           echo "Using dune-fem   branch: ${{ github.event.inputs.fembranch }}"
           echo "Using dune-fempy branch: ${{ github.event.inputs.fempybranch }}"
           echo "Run tests: ${{ github.event.inputs.runTests }}"
+          echo "upload notebooks: ${{ github.event.inputs.uploadNB }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
         uses: actions/checkout@v6
       - name: Test on dune/dune-testpypi and get the run ID
-        uses: codex-/return-dispatch@v2
+        uses: codex-/return-dispatch@v3.0.2 # v2
         id: return_dispatch
         with:
           token: ${{ secrets.Dispatch_Secret }}
@@ -180,7 +186,7 @@ jobs:
         run: |
           echo "PIPPRE=--pre" >> $GITHUB_ENV
       - name: setup python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
       - name: environmentLog
@@ -219,13 +225,12 @@ jobs:
           if [ "$RUNNER_OS" == "Linux" ]; then
             pip3 install scikit-umfpack
           else
-            brew install swig
             echo "CURRENTLY PETSC4PY AND SCIKIT-UMFPACK IS DISABLED on MACOs due to issues - needs checking"
           fi
         shell: bash
       - name: pip3 install dune modules
         run: |
-          export CXXFLAGS="-Werror=deprecated-declarations"
+          export CXXFLAGS="-g -Werror=deprecated-declarations"
           ls dist
           if [ "$RUNNER_OS" == "Linux" ]; then
             source $HOME/miniforge/bin/activate petsc
@@ -253,7 +258,7 @@ jobs:
           pip3 list
         shell: bash
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
+        uses: SimenB/github-actions-cpu-cores@v3
         id: cpu-cores
       - name: Set tutorial path
         if: github.event.inputs.download == 'lund'
@@ -272,10 +277,10 @@ jobs:
           source dune-env/bin/activate
           echo "USING python"
           python --version
-          export DUNEPY_DISABLE_PLOTTING=1
           export DUNE_LOG_LEVEL=$LOGLEVEL
-          export OMP_NUM_THREADS=4
-          export DEFAULT_CXXFLAGS="-O3 -Werror=deprecated-declarations"
+          export OMP_NUM_THREADS=${{ steps.cpu-cores.outputs.count }}
+          export CXXFLAGS="-g -Werror=deprecated-declarations"
+          export DUNE_SAVE_BUILD="console"
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
           cd dune-fempy/doc
@@ -285,9 +290,7 @@ jobs:
           if [ "$MAKE_NOTEBOOK" == "1" ]; then
             mkdir ../notebooks-${{ matrix.test }}
             git status --porcelain | awk 'match($1, "M"){print $2}' > newfiles.txt
-            cat newfiles.txt
             cat newfiles.txt | xargs cp -t ../notebooks-${{ matrix.test }}
-            # cp *.ipynb ../../notebooks-${{ matrix.test }}
             cd ..
           fi
         shell: bash
@@ -301,6 +304,7 @@ jobs:
   pushnbs:
     name: push notebooks
     needs: test
+    if: ${{ github.event.inputs.uploadNB == 'true' }}
     runs-on: [ubuntu-latest]
     steps:
     - name: checkout dune-fem-tutorial
