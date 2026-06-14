@@ -11,6 +11,16 @@ on:        # yamllint disable-line rule:truthy
     #       of some of the jobs so any change to the default
     #       need to be done (at least) twice!
     inputs:
+      runTests:
+        type: boolean
+        description: run testing scenarios [true]
+        required: true
+        default: true
+      uploadNB:
+        type: boolean
+        description: upload new notebooks [true]
+        required: true
+        default: true
       download:
         type: choice
         description: 'download location ( dune | lund ) [dune]'
@@ -56,16 +66,6 @@ on:        # yamllint disable-line rule:truthy
         description: 'tag for testing repo e.g. (master | v2.8.0.1) [master]'
         required: true
         default: 'main'
-      runTests:
-        type: boolean
-        description: run testing scenarios [true]
-        required: true
-        default: true
-      uploadNB:
-        type: boolean
-        description: upload new notebooks [true]
-        required: true
-        default: true
       logLevel:
         type: choice
         description: 'Log level [Warning]'
@@ -76,6 +76,9 @@ on:        # yamllint disable-line rule:truthy
           - Warning
           - Info
           - error
+      cxxFlags:
+        description: 'compile flags (leave empty for default, consider -g -Werror=deprecated-declarations)'
+        default: ''
       # needed only for dispatching from other repo
       distinct_id:
         required: false
@@ -117,6 +120,7 @@ jobs:
           echo "Using dune-fempy branch: ${{ github.event.inputs.fempybranch }}"
           echo "Run tests: ${{ github.event.inputs.runTests }}"
           echo "upload notebooks: ${{ github.event.inputs.uploadNB }}"
+          echo "compile flags:  ${{ github.event.inputs.cxxFlags }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
         uses: actions/checkout@v6
@@ -230,7 +234,9 @@ jobs:
         shell: bash
       - name: pip3 install dune modules
         run: |
-          export CXXFLAGS="-g -Werror=deprecated-declarations"
+          if [ -n "${{ github.event.inputs.cxxFlags }}" ]; then
+            export CXXFLAGS="${{ github.event.inputs.cxxFlags }}"
+          fi
           ls dist
           if [ "$RUNNER_OS" == "Linux" ]; then
             source $HOME/miniforge/bin/activate petsc
@@ -279,7 +285,9 @@ jobs:
           python --version
           export DUNE_LOG_LEVEL=$LOGLEVEL
           export OMP_NUM_THREADS=${{ steps.cpu-cores.outputs.count }}
-          export CXXFLAGS="-g -Werror=deprecated-declarations"
+          if [ -n "${{ github.event.inputs.cxxFlags }}" ]; then
+            export CXXFLAGS="${{ github.event.inputs.cxxFlags }}"
+          fi
           export DUNE_SAVE_BUILD="console"
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
