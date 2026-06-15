@@ -36,6 +36,8 @@ on:        # yamllint disable-line rule:truthy
           - error
 
 jobs:
+  env:
+    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   # build and test packages
   synctag:
     name: sync and tag
@@ -46,7 +48,7 @@ jobs:
       RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
       - name: starting
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: settag
         if: github.event.inputs.tag != ''
         run: echo "TAG=${{ github.event.inputs.tag }}" >> $GITHUB_ENV
@@ -81,7 +83,7 @@ jobs:
         shell: bash
       - name: Run tutorial workflow and get run ID
         if: github.event.inputs.tag != 'cleanup'
-        uses: codex-/return-dispatch@v1
+        uses: codex-/return-dispatch@v2
         id: return_dispatch
         with:
           token: ${{ secrets.Dispatch_Secret }}
@@ -96,7 +98,7 @@ jobs:
                               "runTests": "${{ env.RUNTESTS }}" }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         if: github.event.inputs.tag != 'cleanup'
-        uses: Codex-/await-remote-run@v1
+        uses: Codex-/await-remote-run@v2
         with:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-testpypi
@@ -106,7 +108,7 @@ jobs:
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
         if: github.event.inputs.tag != 'cleanup'
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v9
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: adedner/dune-testpypi
@@ -122,7 +124,7 @@ jobs:
         shell: bash
       - name: upload artifacts
         if: github.event.inputs.tag != 'cleanup'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: packages
           path: dist
@@ -142,7 +144,7 @@ jobs:
       VERSION: ${{ needs.synctag.outputs.VERSION }}
     steps:
       - name: download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v9
         with:
           name: packages
           path: dist
@@ -186,7 +188,7 @@ jobs:
           git commit -m "update version tag"
           git push -u origin tutorial/v${{ env.VERSION }}
       - name: build unstable doc
-        uses: codex-/return-dispatch@v1
+        uses: codex-/return-dispatch@v2
         id: return_dispatch
         with:
           token: ${{ secrets.Dispatch_Secret }}
@@ -196,7 +198,7 @@ jobs:
           workflow: tutorial.yml
           workflow_inputs: '{ "version": "v${{ env.VERSION }}" }'
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: Codex-/await-remote-run@v1
+        uses: Codex-/await-remote-run@v2
         with:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-fem-tutorial

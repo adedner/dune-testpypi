@@ -11,6 +11,16 @@ on:        # yamllint disable-line rule:truthy
     #       of some of the jobs so any change to the default
     #       need to be done (at least) twice!
     inputs:
+      runTests:
+        type: boolean
+        description: run testing scenarios [true]
+        required: true
+        default: true
+      uploadNB:
+        type: boolean
+        description: upload new notebooks [true]
+        required: true
+        default: true
       download:
         type: choice
         description: 'download location ( dune | lund ) [dune]'
@@ -56,11 +66,6 @@ on:        # yamllint disable-line rule:truthy
         description: 'tag for testing repo e.g. (master | v2.8.0.1) [master]'
         required: true
         default: 'main'
-      runTests:
-        type: boolean
-        description: run testing scenarios [true]
-        required: true
-        default: true
       logLevel:
         type: choice
         description: 'Log level [Warning]'
@@ -71,6 +76,9 @@ on:        # yamllint disable-line rule:truthy
           - Warning
           - Info
           - error
+      cxxFlags:
+        description: 'compile flags (leave empty for default, consider -g -Werror=deprecated-declarations)'
+        default: ''
       # needed only for dispatching from other repo
       distinct_id:
         required: false
@@ -82,6 +90,7 @@ jobs:
     name: build
     runs-on: [ubuntu-latest]
     env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       DOWNURL: 'https://gitlab.dune-project.org'
       # same for dune and github build, different for lund
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
@@ -110,11 +119,13 @@ jobs:
           echo "Using dune-fem   branch: ${{ github.event.inputs.fembranch }}"
           echo "Using dune-fempy branch: ${{ github.event.inputs.fempybranch }}"
           echo "Run tests: ${{ github.event.inputs.runTests }}"
+          echo "upload notebooks: ${{ github.event.inputs.uploadNB }}"
+          echo "compile flags:  ${{ github.event.inputs.cxxFlags }}"
           echo "ref: ${{ github.ref }}"
       - name: starting
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Test on dune/dune-testpypi and get the run ID
-        uses: codex-/return-dispatch@v1
+        uses: codex-/return-dispatch@v3.0.2 # v2
         id: return_dispatch
         with:
           token: ${{ secrets.Dispatch_Secret }}
@@ -125,7 +136,7 @@ jobs:
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "${{ env.RUNTESTS }}" }'
           # workflow_timeout_seconds: 120
       - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: Codex-/await-remote-run@v1
+        uses: Codex-/await-remote-run@v2
         with:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-testpypi
@@ -134,7 +145,7 @@ jobs:
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: dawidd6/action-download-artifact@v3
+        uses: dawidd6/action-download-artifact@v8
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: dune-project/dune-testpypi
@@ -148,7 +159,7 @@ jobs:
           # branch: main
           # workflow_search: true
       - name: upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: packages
           path: dist
@@ -158,6 +169,7 @@ jobs:
     name: testing tutorial
     env:
       # same for dune and github build, different for lund
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
     needs: build
     strategy:
@@ -169,23 +181,23 @@ jobs:
         # NOTE: upload of notebook artifacts is only done by one Python job
         #       if changing 3.14 then also remember to change the if
         #       statement in the final step!
-        python: [3.9, 3.14]
+        python: ['3.10', '3.14']
     runs-on: ${{ matrix.os }}
     steps:
       - name: starting
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: pipPreOrNot
         run: |
           echo "PIPPRE=--pre" >> $GITHUB_ENV
       - name: setup python ${{ matrix.python }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
       - name: environmentLog
         if: github.event.inputs.logLevel != ''
         run: echo "LOGLEVEL=${{ github.event.inputs.logLevel }}" >> $GITHUB_ENV
       - name: download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         # if all packages exist on pypi then no artifacts are uploaded so don't fail
         continue-on-error: true
         with:
@@ -198,34 +210,42 @@ jobs:
         shell: bash
       - name: Setup venv
         run: |
-          python3 -m venv dune-env  --system-site-packages
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get remove petsc-dev python3-mpi4py python3-ufl python3-petsc4py-real
+            wget -qO /tmp/miniforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+            bash /tmp/miniforge.sh -b -p $HOME/miniforge
+            export PATH="$HOME/miniforge/bin:$PATH"
+            conda install -y -n base -c conda-forge mamba
+            mamba create -y -n petsc -c conda-forge python=${{ matrix.python }} petsc petsc4py openmpi
+            source $HOME/miniforge/bin/activate petsc
+          fi
+          python3 -m venv --system-site-packages dune-env
           source dune-env/bin/activate
-          PYVERS=$(python3 --version)
+          PYVERS=`python3 --version`
           echo "Selected python version $PYVERS"
           pip3 install --upgrade pip
           pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel jupyter jupytext pandas
           pip3 install landlab
           if [ "$RUNNER_OS" == "Linux" ]; then
-            # echo "CURRENTLY PETSC4PY IS DISABLED"
-            # petsc4py is failing at the moment - need to check
-            # at the moment need to downgrade to 20.0.2 https://gitlab.com/petsc/petsc/-/issues/1369
-            # export PETSC_CONFIGURE_OPTIONS="--download-scalapack --download-suitesparse --download-hypre --download-mumps --download-ml --download-superlu"
-            # pip3 install -v petsc petsc4py
-            sudo apt-get install -y libsuitesparse-dev
-            sudo apt-get install -y petsc-dev
-            sudo apt-get install -y python3-petsc4py-real
             pip3 install scikit-umfpack
           else
-            echo "CURRENTLY PETSC4PY AND SCIKIT-UMFPACK IS DISABLED on MACOs due to issues with mpif90 - needs checking"
-            # while building petsc the following error is produced
-            #     Fortran compiler you provided with --with-fc=/usr/local/bin/mpif90 cannot be found or does not work.
-            #     Cannot compile FC with /usr/local/bin/mpif90.
+            echo "CURRENTLY PETSC4PY AND SCIKIT-UMFPACK IS DISABLED on MACOs due to issues - needs checking"
           fi
         shell: bash
       - name: pip3 install dune modules
         run: |
-          export CXXFLAGS=-Werror=deprecated-declarations
+          if [ -n "${{ github.event.inputs.cxxFlags }}" ]; then
+            export CXXFLAGS="${{ github.event.inputs.cxxFlags }}"
+          fi
           ls dist
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            source $HOME/miniforge/bin/activate petsc
+            export PATH="$HOME/miniforge/bin:$PATH"
+            export PETSC_DIR="$CONDA_PREFIX"
+            export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
+            export CPATH="$CONDA_PREFIX/include:$CPATH"
+            export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
+          fi
           source dune-env/bin/activate
           pip3 install extract-version
           python extractreq.py
@@ -234,41 +254,57 @@ jobs:
         shell: bash
       - name: Setup dune-py
         run: |
-          set +e
+          set -e
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            source $HOME/miniforge/bin/activate petsc
+            export PATH="$HOME/miniforge/bin:$PATH"
+            export PETSC_DIR="$CONDA_PREFIX"
+          fi
           source dune-env/bin/activate
           pip3 list
         shell: bash
       - name: Get number of CPU cores
-        uses: SimenB/github-actions-cpu-cores@v2
+        uses: SimenB/github-actions-cpu-cores@v3
         id: cpu-cores
       - name: Set tutorial path
         if: github.event.inputs.download == 'lund'
         run: echo "FEMPYGITURL=https://gitlab.maths.lu.se/dune/dune-fempy.git" >> $GITHUB_ENV
       - name: Run tutorial
         run: |
-          set +e
+          set -e
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            source $HOME/miniforge/bin/activate petsc
+            export PATH="$HOME/miniforge/bin:$PATH"
+            export PETSC_DIR="$CONDA_PREFIX"
+            export MAKE_NOTEBOOK=1
+          else
+            export MAKE_NOTEBOOK=0
+          fi
           source dune-env/bin/activate
           echo "USING python"
           python --version
-          # export DUNEPY_DISABLE_PLOTTING=1
           export DUNE_LOG_LEVEL=$LOGLEVEL
-          export OMP_NUM_THREADS=4
-          export DEFAULT_CXXFLAGS="-O3 -Werror=deprecated-declarations"
+          export OMP_NUM_THREADS=${{ steps.cpu-cores.outputs.count }}
+          if [ -n "${{ github.event.inputs.cxxFlags }}" ]; then
+            export CXXFLAGS="${{ github.event.inputs.cxxFlags }}"
+          fi
+          export DUNE_SAVE_BUILD="console"
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
           cd dune-fempy/doc
           make clean
-          python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }}
+          python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }} $MAKE_NOTEBOOK
           cd ..
-          mkdir ../notebooks-${{ matrix.test }}
-          git status --porcelain | awk 'match($1, "M"){print $2}' > newfiles.txt
-          cat newfiles.txt | xargs cp -t ../notebooks-${{ matrix.test }}
-          # cp *.ipynb ../../notebooks-${{ matrix.test }}
-          cd ..
+          if [ "$MAKE_NOTEBOOK" == "1" ]; then
+            mkdir ../notebooks-${{ matrix.test }}
+            git status --porcelain | awk 'match($1, "M"){print $2}' > newfiles.txt
+            cat newfiles.txt | xargs cp -t ../notebooks-${{ matrix.test }}
+            cd ..
+          fi
         shell: bash
       - name: Upload Notebook
         if: matrix.os == 'ubuntu-latest' && matrix.python == '3.14'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: notebooks-${{ matrix.test }}
           path: notebooks-${{ matrix.test }}
@@ -276,6 +312,7 @@ jobs:
   pushnbs:
     name: push notebooks
     needs: test
+    if: ${{ github.event.inputs.uploadNB == 'true' }}
     runs-on: [ubuntu-latest]
     steps:
     - name: checkout dune-fem-tutorial
@@ -290,7 +327,7 @@ jobs:
         git config --global user.email "<>"
         # git config --unset-all http.https://github.com/.extraheader
     - name: Download All Noetbooks
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v8
       with:
         path: notebooks
         pattern: notebooks-*
@@ -309,7 +346,7 @@ jobs:
         git commit -m "...add new doc"
         git push -f
     - name: build unstable doc
-      uses: codex-/return-dispatch@v1
+      uses: codex-/return-dispatch@v2
       id: return_dispatch
       with:
         token: ${{ secrets.Dispatch_Secret }}
@@ -319,7 +356,7 @@ jobs:
         workflow: tutorial.yml
         workflow_inputs: '{ "version": "unstable" }'
     - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-      uses: Codex-/await-remote-run@v1
+      uses: Codex-/await-remote-run@v2
       with:
         token: ${{ secrets.Dispatch_Secret }}
         repo: dune-fem-tutorial
