@@ -346,7 +346,7 @@ jobs:
         git commit -m "...add new doc"
         git push -f
     - name: build unstable doc
-      uses: codex-/return-dispatch@v2
+      uses: codex-/return-dispatch@v3.0.2 # v2
       id: return_dispatch
       with:
         token: ${{ secrets.Dispatch_Secret }}
