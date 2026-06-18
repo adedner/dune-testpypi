@@ -221,8 +221,8 @@ jobs:
             wget -qO /tmp/miniforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
             bash /tmp/miniforge.sh -b -p $HOME/miniforge
             # export PATH="$HOME/miniforge/bin:$PATH"
-            conda install -y -n base -c conda-forge mamba
-            mamba create -y -n petsc -c conda-forge python=${{ matrix.python }} petsc petsc4py openmpi mpi4py
+            PATH="$HOME/miniforge/bin:$PATH" conda install -y -n base -c conda-forge mamba
+            PATH="$HOME/miniforge/bin:$PATH" mamba create -y -n petsc -c conda-forge python=${{ matrix.python }} petsc petsc4py openmpi mpi4py
             source $HOME/miniforge/bin/activate petsc
           fi
           # not using an extra env although the conda setup already has one
