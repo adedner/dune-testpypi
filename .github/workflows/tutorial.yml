@@ -210,25 +210,35 @@ jobs:
         shell: bash
       - name: Setup venv
         run: |
+          # Installing petsc4py into the system does not work due to the
+          # change of Python version in the matrix setup - a system
+          # petsc4py will only work with the system Python.
+          # We will use a conda environment to make sure petsc and petsc4py 
+          # are recent versions and work with the right Python version - we
+          # don't want to compile petsc from scratch to reduce runtime:
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get remove petsc-dev python3-mpi4py python3-ufl python3-petsc4py-real
             wget -qO /tmp/miniforge.sh https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
             bash /tmp/miniforge.sh -b -p $HOME/miniforge
-            export PATH="$HOME/miniforge/bin:$PATH"
+            # export PATH="$HOME/miniforge/bin:$PATH"
             conda install -y -n base -c conda-forge mamba
-            mamba create -y -n petsc -c conda-forge python=${{ matrix.python }} petsc petsc4py openmpi
+            mamba create -y -n petsc -c conda-forge python=${{ matrix.python }} petsc petsc4py openmpi mpi4py
             source $HOME/miniforge/bin/activate petsc
           fi
+          # not using an extra env although the conda setup already has one
+          # - might be worth figuring out at some point how to avoid this
+          # step with the conda environment
           python3 -m venv --system-site-packages dune-env
           source dune-env/bin/activate
           PYVERS=`python3 --version`
           echo "Selected python version $PYVERS"
           pip3 install --upgrade pip
-          pip3 install matplotlib scipy scikit-build mpi4py pygmsh wheel jupyter jupytext pandas
+          pip3 install matplotlib scipy scikit-build pygmsh wheel jupyter jupytext pandas
           pip3 install landlab
           if [ "$RUNNER_OS" == "Linux" ]; then
             pip3 install scikit-umfpack
           else
+            pip install mpi4py
             echo "CURRENTLY PETSC4PY AND SCIKIT-UMFPACK IS DISABLED on MACOs due to issues - needs checking"
           fi
         shell: bash
@@ -240,7 +250,7 @@ jobs:
           ls dist
           if [ "$RUNNER_OS" == "Linux" ]; then
             source $HOME/miniforge/bin/activate petsc
-            export PATH="$HOME/miniforge/bin:$PATH"
+            # export PATH="$HOME/miniforge/bin:$PATH"
             export PETSC_DIR="$CONDA_PREFIX"
             export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
             export CPATH="$CONDA_PREFIX/include:$CPATH"
@@ -257,7 +267,7 @@ jobs:
           set -e
           if [ "$RUNNER_OS" == "Linux" ]; then
             source $HOME/miniforge/bin/activate petsc
-            export PATH="$HOME/miniforge/bin:$PATH"
+            # export PATH="$HOME/miniforge/bin:$PATH"
             export PETSC_DIR="$CONDA_PREFIX"
           fi
           source dune-env/bin/activate
@@ -274,8 +284,11 @@ jobs:
           set -e
           if [ "$RUNNER_OS" == "Linux" ]; then
             source $HOME/miniforge/bin/activate petsc
-            export PATH="$HOME/miniforge/bin:$PATH"
+            # export PATH="$HOME/miniforge/bin:$PATH"
             export PETSC_DIR="$CONDA_PREFIX"
+            export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
+            export CPATH="$CONDA_PREFIX/include:$CPATH"
+            export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
             export MAKE_NOTEBOOK=1
           else
             export MAKE_NOTEBOOK=0
