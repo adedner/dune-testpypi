@@ -298,6 +298,12 @@ jobs:
           python -c "import petsc4py,sys; print(petsc4py.get_include())"
           echo "========================"
           echo "========================"
+          cd dune-env/.cache/dune-py
+          rm CMakeCache.txt
+          cmake .
+          cd ../../..
+          echo "========================"
+          echo "========================"
           cat dune-env/.cache/dune-py/CMakeCache.txt
           echo "========================"
           cat dune-env/.cache/dune-py/CMakeFiles/CMakeOutput.log
