@@ -293,10 +293,13 @@ jobs:
           fi
           export DUNE_SAVE_BUILD="console"
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
+          python -c "from dune.generator import builder; builder.initialize()"
+          python -c "import petsc4py,sys; print(petsc4py.get_include())"
+          cat dune-env/.cache/dune-py/CMakeCache.txt
+
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
           cd dune-fempy/doc
           make clean
-          python -c "from dune.generator import builder; builder.initialize()"
           python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }} $MAKE_NOTEBOOK
           cd ..
           if [ "$MAKE_NOTEBOOK" == "1" ]; then
