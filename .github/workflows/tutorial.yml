@@ -274,7 +274,7 @@ jobs:
           set -e
           if [ "$RUNNER_OS" == "Linux" ]; then
             source $HOME/miniforge/bin/activate petsc
-             # export PATH="$HOME/miniforge/bin:$PATH"
+            export PATH="$HOME/miniforge/bin:$PATH"
             export PETSC_DIR="$CONDA_PREFIX"
             export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
             export CPATH="$CONDA_PREFIX/include:$CPATH"
