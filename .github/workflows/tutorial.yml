@@ -279,7 +279,7 @@ jobs:
             export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$LD_LIBRARY_PATH"
             export CPATH="$CONDA_PREFIX/include:$CPATH"
             export PKG_CONFIG_PATH="$CONDA_PREFIX/lib/pkgconfig:$PKG_CONFIG_PATH"
-            export MAKE_NOTEBOOK=1
+            export MAKE_NOTEBOOK=0 # !!!!! change back to 1
           else
             export MAKE_NOTEBOOK=0
           fi
@@ -295,12 +295,20 @@ jobs:
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
           python -c "from dune.generator import builder; builder.initialize()"
           python -c "import petsc4py,sys; print(petsc4py.get_include())"
+          echo "========================"
+          echo "========================"
           cat dune-env/.cache/dune-py/CMakeCache.txt
+          echo "========================"
+          cat dune-env/.cache/dune-py/CMakeFiles/CMakeOutput.log
+          echo "========================"
+          cat dune-env/.cache/dune-py/CMakeFiles/CMakeError.log
+          echo "========================"
+          echo "========================"
 
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
           cd dune-fempy/doc
           make clean
-          python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }} $MAKE_NOTEBOOK
+          # python ../../run-tutorial.py ${{ matrix.test }} ${{ # steps.cpu-cores.outputs.count }} $MAKE_NOTEBOOK  # !!!!
           cd ..
           if [ "$MAKE_NOTEBOOK" == "1" ]; then
             mkdir ../notebooks-${{ matrix.test }}
