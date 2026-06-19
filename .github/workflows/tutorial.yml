@@ -260,8 +260,8 @@ jobs:
           pip3 install extract-version
           python extractreq.py
           cat requirements.txt
-          pip3 install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
-          pip3 list
+          pip install $PIPPRE  -U -v --find-links file://$PWD/dist -r requirements.txt
+          pip list
         shell: bash
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v3
@@ -284,9 +284,11 @@ jobs:
           else
             export MAKE_NOTEBOOK=0
           fi
+          echo "================================"
           source dune-env/bin/activate
           echo "USING python"
           python --version
+          pip list
           export DUNE_LOG_LEVEL=$LOGLEVEL
           export OMP_NUM_THREADS="${{ steps.cpu-cores.outputs.count }}"
           if [ -n "${{ github.event.inputs.cxxFlags }}" ]; then
@@ -296,6 +298,7 @@ jobs:
           python -c "from dune.fem import threading; print(f'Default number of threads used {threading.use}')"
           python -c "from dune.generator import builder; builder.initialize()"
           python -c "import petsc4py,sys; print(petsc4py.get_include())"
+          which python
           echo "========================"
           echo "========================"
           cd dune-env/.cache/dune-py
