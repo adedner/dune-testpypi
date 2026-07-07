@@ -97,7 +97,7 @@ jobs:
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
       RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
       fembranch: ${{ github.event.inputs.fembranch || 'feature/ufl-2025.2.0' }}
-      uflbranch: ${{ github.event.inputs.testingbranch || 'main' }}
+      uflbranch: ${{ github.event.inputs.uflbranch || 'main' }}
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
         if: github.event.inputs.distinct_id != ''
@@ -133,7 +133,7 @@ jobs:
           token: ${{ secrets.Dispatch_Secret }}
           repo: dune-testpypi
           owner: dune-project
-          ref: ${{ env.testingbranch }}
+          ref: ${{ github.event.inputs.testingbranch }}
           workflow: testing.yml
           workflow_inputs: '{ "logLevel": "${{ github.event.inputs.logLevel }}", "branch": "${{ github.event.inputs.branch }}", "fembranch": "${{ github.event.inputs.fembranch }}", "download": "${{ env.DOWNURL }}", "runTests": "${{ env.RUNTESTS }}" }'
           # workflow_timeout_seconds: 120
@@ -173,7 +173,7 @@ jobs:
       # same for dune and github build, different for lund
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
-      uflbranch: ${{ github.event.inputs.testingbranch || 'main' }}
+      uflbranch: ${{ github.event.inputs.uflbranch || 'main' }}
     needs: build
     strategy:
       fail-fast: false
