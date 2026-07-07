@@ -272,6 +272,7 @@ jobs:
       - name: Run tutorial
         run: |
           set -e
+          # env -i HOME="$HOME" PATH="$PATH" /home/dedner/miniforge/bin/python -m pip install --no-cache-dir -vvv --find-links=/tmp/dist dune-fem==2.12.0.3
           if [ "$RUNNER_OS" == "Linux" ]; then
             source $HOME/miniforge/bin/activate petsc
             export PATH="$HOME/miniforge/bin:$PATH"
@@ -283,7 +284,7 @@ jobs:
             export MAKE_NOTEBOOK=0
           else
             export MAKE_NOTEBOOK=0
-          fi
+         fi
           echo "================================"
           source dune-env/bin/activate
           echo "USING python"
