@@ -5,7 +5,7 @@ name: test ufl from source
 # Controls when the action will run.
 on:        # yamllint disable-line rule:truthy
   # schedule test for nightly build
-  schedule: # run every Saturday at 4:22
+  schedule:   # run every Saturday at 4:22
     - cron: "22 4 * * 6"
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -105,7 +105,7 @@ jobs:
       - name: downloadGithub
         if: github.event.inputs.download == 'github'
         run: echo "DOWNURL=https://github.com/${{ github.repository_owner }}" >> $GITHUB_ENV
-        #run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
+        # run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
       - name: downloadLund
         if: github.event.inputs.download == 'lund'
         run: |
@@ -127,7 +127,7 @@ jobs:
       - name: starting
         uses: actions/checkout@v6
       - name: Test on dune/dune-testpypi and get the run ID
-        uses: codex-/return-dispatch@v3.0.2 # v2
+        uses: codex-/return-dispatch@v3.0.2   # v2
         id: return_dispatch
         with:
           token: ${{ secrets.Dispatch_Secret }}

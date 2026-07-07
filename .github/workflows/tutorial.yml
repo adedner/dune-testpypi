@@ -102,7 +102,7 @@ jobs:
       - name: downloadGithub
         if: github.event.inputs.download == 'github'
         run: echo "DOWNURL=https://github.com/${{ github.repository_owner }}" >> $GITHUB_ENV
-        #run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
+        # run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
       - name: downloadLund
         if: github.event.inputs.download == 'lund'
         run: |
@@ -125,7 +125,7 @@ jobs:
       - name: starting
         uses: actions/checkout@v6
       - name: Test on dune/dune-testpypi and get the run ID
-        uses: codex-/return-dispatch@v3.0.2 # v2
+        uses: codex-/return-dispatch@v3.0.2   # v2
         id: return_dispatch
         with:
           token: ${{ secrets.Dispatch_Secret }}
@@ -213,7 +213,7 @@ jobs:
           # Installing petsc4py into the system does not work due to the
           # change of Python version in the matrix setup - a system
           # petsc4py will only work with the system Python.
-          # We will use a conda environment to make sure petsc and petsc4py 
+          # We will use a conda environment to make sure petsc and petsc4py
           # are recent versions and work with the right Python version - we
           # don't want to compile petsc from scratch to reduce runtime:
           if [ "$RUNNER_OS" == "Linux" ]; then
@@ -284,7 +284,7 @@ jobs:
             export MAKE_NOTEBOOK=0
           else
             export MAKE_NOTEBOOK=0
-         fi
+          fi
           echo "================================"
           source dune-env/bin/activate
           echo "USING python"
@@ -341,52 +341,52 @@ jobs:
     if: ${{ github.event.inputs.uploadNB == 'true' }}
     runs-on: [ubuntu-latest]
     steps:
-    - name: checkout dune-fem-tutorial
-      uses: actions/checkout@v6
-      with:
-        repository: dune-project/dune-fem-tutorial
-        ref: 'tutorial/unstable'
-        ssh-key:  ${{ secrets.PUSH_TUTORIAL_SSH }}
-    - name: setup git config
-      run: |
-        git config --global user.name "Tutorial Bot"
-        git config --global user.email "<>"
-        # git config --unset-all http.https://github.com/.extraheader
-    - name: Download All Noetbooks
-      uses: actions/download-artifact@v8
-      with:
-        path: notebooks
-        pattern: notebooks-*
-        merge-multiple: true
-    - name: copy to dune-fem-tutorial
-      run: |
-        # this is run inside dune-fem-tutorial folder
-        git rm -r doc
-        git commit -m "remove old doc..."
-        git clone --depth 1 https://gitlab.dune-project.org/dune-fem/dune-fempy.git
-        cp -rL dune-fempy/doc .
-        cp conf.py doc
-        cp -r notebooks/* doc
-        cp conf.py doc
-        git add doc
-        git commit -m "...add new doc"
-        git push -f
-    - name: build unstable doc
-      uses: codex-/return-dispatch@v3.0.2 # v2
-      id: return_dispatch
-      with:
-        token: ${{ secrets.Dispatch_Secret }}
-        repo: dune-fem-tutorial
-        owner: dune-project
-        ref: main
-        workflow: tutorial.yml
-        workflow_inputs: '{ "version": "unstable" }'
-    - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-      uses: Codex-/await-remote-run@v2
-      with:
-        token: ${{ secrets.Dispatch_Secret }}
-        repo: dune-fem-tutorial
-        owner: dune-project
-        run_id: ${{ steps.return_dispatch.outputs.run_id }}
-        run_timeout_seconds: 7200
-        poll_interval_ms: 5000
+      - name: checkout dune-fem-tutorial
+        uses: actions/checkout@v6
+        with:
+          repository: dune-project/dune-fem-tutorial
+          ref: 'tutorial/unstable'
+          ssh-key: ${{ secrets.PUSH_TUTORIAL_SSH }}
+      - name: setup git config
+        run: |
+          git config --global user.name "Tutorial Bot"
+          git config --global user.email "<>"
+          # git config --unset-all http.https://github.com/.extraheader
+      - name: Download All Noetbooks
+        uses: actions/download-artifact@v8
+        with:
+          path: notebooks
+          pattern: notebooks-*
+          merge-multiple: true
+      - name: copy to dune-fem-tutorial
+        run: |
+          # this is run inside dune-fem-tutorial folder
+          git rm -r doc
+          git commit -m "remove old doc..."
+          git clone --depth 1 https://gitlab.dune-project.org/dune-fem/dune-fempy.git
+          cp -rL dune-fempy/doc .
+          cp conf.py doc
+          cp -r notebooks/* doc
+          cp conf.py doc
+          git add doc
+          git commit -m "...add new doc"
+          git push -f
+      - name: build unstable doc
+        uses: codex-/return-dispatch@v3.0.2   # v2
+        id: return_dispatch
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-fem-tutorial
+          owner: dune-project
+          ref: main
+          workflow: tutorial.yml
+          workflow_inputs: '{ "version": "unstable" }'
+      - name: Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
+        uses: Codex-/await-remote-run@v2
+        with:
+          token: ${{ secrets.Dispatch_Secret }}
+          repo: dune-fem-tutorial
+          owner: dune-project
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+          run_timeout_seconds: 7200
+          poll_interval_ms: 5000
