@@ -1,5 +1,5 @@
 ---
-name: sync/tag mirrors and upload
+name: synctag mirrors and upload
 # yamllint disable rule:line-length
 
 # Controls when the action will run.
