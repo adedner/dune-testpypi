@@ -147,7 +147,7 @@ jobs:
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: dawidd6/action-download-artifact@v8
+        uses: dawidd6/action-download-artifact@v21
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: dune-project/dune-testpypi

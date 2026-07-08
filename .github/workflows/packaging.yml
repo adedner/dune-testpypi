@@ -109,7 +109,7 @@ jobs:
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
         if: github.event.inputs.tag != 'cleanup'
-        uses: dawidd6/action-download-artifact@v9
+        uses: dawidd6/action-download-artifact@v21
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: adedner/dune-testpypi
