@@ -145,7 +145,7 @@ jobs:
           run_timeout_seconds: 7200
           poll_interval_ms: 5000
       - name: download artifacts from RUN ID ${{ steps.return_dispatch.outputs.run_id }}
-        uses: dawidd6/action-download-artifact@v8
+        uses: dawidd6/action-download-artifact@v21
         with:
           github_token: ${{ secrets.Dispatch_Secret }}
           repo: dune-project/dune-testpypi
@@ -197,7 +197,7 @@ jobs:
         if: github.event.inputs.logLevel != ''
         run: echo "LOGLEVEL=${{ github.event.inputs.logLevel }}" >> $GITHUB_ENV
       - name: download artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v21
         # if all packages exist on pypi then no artifacts are uploaded so don't fail
         continue-on-error: true
         with:
@@ -355,7 +355,7 @@ jobs:
           git config --global user.email "<>"
           # git config --unset-all http.https://github.com/.extraheader
       - name: Download All Noetbooks
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@v21
         with:
           path: notebooks
           pattern: notebooks-*
