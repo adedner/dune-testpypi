@@ -35,9 +35,10 @@ on:        # yamllint disable-line rule:truthy
           - Info
           - error
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
-  env:
-    FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   # build and test packages
   synctag:
     name: sync and tag
