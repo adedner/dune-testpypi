@@ -104,10 +104,11 @@ jobs:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
         if: github.event.inputs.distinct_id != ''
         run: echo ${{ github.event.inputs.distinct_id }}
-      - name: downloadGithub
-        if: github.event.inputs.download == 'github'
-        run: echo "DOWNURL=https://github.com/${{ github.repository_owner }}" >> $GITHUB_ENV
-        # run: echo "DOWNURL=https://github.com/adedner" >> $GITHUB_ENV
+      - name: downloadDune
+        if: github.event.inputs.download == 'dune'
+        run:
+          echo "DOWNURL=https://gitlab.dune-project.org" >> $GITHUB_ENV
+          echo "FEMPYGITURL=https://gitlab.dune-project.org/dune-fem/dune-fempy.git" >> $GITHUB_ENV
       - name: downloadLund
         if: github.event.inputs.download == 'lund'
         run: |
@@ -271,6 +272,9 @@ jobs:
       - name: Get number of CPU cores
         uses: SimenB/github-actions-cpu-cores@v3
         id: cpu-cores
+      - name: Set tutorial path
+        if: github.event.inputs.download == 'dune'
+        run: echo "FEMPYGITURL=https://gitlab.dune-project.org/dune-fem/dune-fempy.git" >> $GITHUB_ENV
       - name: Set tutorial path
         if: github.event.inputs.download == 'lund'
         run: echo "FEMPYGITURL=https://gitlab.maths.lu.se/dune/dune-fempy.git" >> $GITHUB_ENV
