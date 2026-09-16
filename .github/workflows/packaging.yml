@@ -60,7 +60,8 @@ jobs:
             python3 -m venv tmpvenv
             . tmpvenv/bin/activate
             pip install scikit-build requests
-            git clone --depth 1 https://gitlab.dune-project.org/core/dune-common.git
+            #git clone --depth 1 https://gitlab.dune-project.org/core/dune-common.git
+            git clone --depth 1 https://github.com/dune-project/dune-common.git
             # OLD: dev tagging based on previous tags in repo
             # ver=`grep "\-git" dune-common/dune.module | awk -F'Version:|-git' '{print $2}' | tr -d '[:space:]'`
             # if [ "x$ver" = "x" ] ; then
