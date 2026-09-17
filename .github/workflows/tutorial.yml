@@ -2,6 +2,14 @@
 name: test tutorial
 # yamllint disable rule:line-length
 
+# global environment variables and their defaults for push
+# and schedules events where the input is empty
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  DOWNURL: 'https://github.com/dune-project'
+  # same for dune and github build, different for lund
+  FEMPYGITURL: 'https://github.com/dune-project'
+
 # Controls when the action will run.
 on:        # yamllint disable-line rule:truthy
   # schedule test for nightly build
@@ -90,10 +98,6 @@ jobs:
     name: build
     runs-on: [ubuntu-latest]
     env:
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-      DOWNURL: 'https://gitlab.dune-project.org'
-      # same for dune and github build, different for lund
-      FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
       RUNTESTS: ${{ !contains(github.event.inputs.runTests, 'false') }}
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }}
@@ -167,10 +171,6 @@ jobs:
   # test packages
   test:
     name: testing tutorial
-    env:
-      # same for dune and github build, different for lund
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-      FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
     needs: build
     strategy:
       fail-fast: false
@@ -365,7 +365,7 @@ jobs:
           # this is run inside dune-fem-tutorial folder
           git rm -r doc
           git commit -m "remove old doc..."
-          git clone --depth 1 https://gitlab.dune-project.org/dune-fem/dune-fempy.git
+          git clone --depth 1 ${{ env.FEMPYGITURL }}/dune-fempy.git
           cp -rL dune-fempy/doc .
           cp conf.py doc
           cp -r notebooks/* doc
