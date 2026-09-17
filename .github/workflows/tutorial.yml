@@ -6,9 +6,9 @@ name: test tutorial
 # and schedules events where the input is empty
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  DOWNURL: 'https://github.com/dune-project'
+  DOWNURL: 'https://gitlab.dune-project.org'
   # same for dune and github build, different for lund
-  FEMPYGITURL: 'https://github.com/dune-project'
+  FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
 
 # Controls when the action will run.
 on:        # yamllint disable-line rule:truthy
@@ -33,7 +33,7 @@ on:        # yamllint disable-line rule:truthy
         type: choice
         description: 'download location ( dune | lund ) [dune]'
         required: true
-        default: 'dune'
+        default: 'github'
         options:
           - dune
           - github
