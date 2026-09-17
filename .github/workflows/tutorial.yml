@@ -31,7 +31,7 @@ on:        # yamllint disable-line rule:truthy
         default: true
       download:
         type: choice
-        description: 'download location ( dune | lund ) [dune]'
+        description: 'download location ( dune | github | lund ) [github]'
         required: true
         default: 'github'
         options:
