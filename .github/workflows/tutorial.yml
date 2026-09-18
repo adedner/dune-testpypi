@@ -6,9 +6,11 @@ name: test tutorial
 # and schedules events where the input is empty
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
-  DOWNURL: 'https://gitlab.dune-project.org'
+  DOWNURL: 'https://github.com/dune-project'
   # same for dune and github build, different for lund
-  FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
+  FEMPYGITURL: 'https://github.com/dune-project/dune-fempy.git'
+  #DOWNURL: 'https://gitlab.dune-project.org'
+  #FEMPYGITURL: 'https://gitlab.dune-project.org/dune-fem/dune-fempy.git'
 
 # Controls when the action will run.
 on:        # yamllint disable-line rule:truthy
@@ -317,7 +319,7 @@ jobs:
           # cat dune-env/.cache/dune-py/CMakeFiles/CMakeError.log
           # echo "========================"
           # echo "========================"
-
+          echo "Cloning from ${{ env.FEMPYGITURL }}"
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
           cd dune-fempy/doc
           make clean
