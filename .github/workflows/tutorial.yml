@@ -356,7 +356,7 @@ jobs:
           git config --global user.name "Tutorial Bot"
           git config --global user.email "<>"
           # git config --unset-all http.https://github.com/.extraheader
-      - name: Download All Noetbooks
+      - name: Download All Notebooks
         uses: actions/download-artifact@v8
         with:
           path: notebooks
@@ -367,7 +367,7 @@ jobs:
           # this is run inside dune-fem-tutorial folder
           git rm -r doc
           git commit -m "remove old doc..."
-          git clone --depth 1 ${{ env.FEMPYGITURL }}/dune-fempy.git
+          git clone --depth 1 ${{ env.FEMPYGITURL }}
           cp -rL dune-fempy/doc .
           cp conf.py doc
           cp -r notebooks/* doc
