@@ -323,6 +323,7 @@ jobs:
           git clone --depth 1 -b ${{ github.event.inputs.fempybranch }} ${{ env.FEMPYGITURL }}
           cd dune-fempy/doc
           make clean
+          export UCX_TLS=tcp,self
           python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }} $MAKE_NOTEBOOK  #
           cd ..
           if [ "$MAKE_NOTEBOOK" == "1" ]; then
