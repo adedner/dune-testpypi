@@ -146,7 +146,7 @@ jobs:
       VERSION: ${{ needs.synctag.outputs.VERSION }}
     steps:
       - name: download artifacts
-        uses: actions/download-artifact@v9
+        uses: actions/download-artifact@v8
         with:
           name: packages
           path: dist
