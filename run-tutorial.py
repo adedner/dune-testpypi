@@ -49,6 +49,17 @@ tests = {
       "overview_of_advection_solver.py",
       "cylinder.py"
     ]}
+tests = {
+    "coreA":[
+      "parallelrun.py",
+    ],
+    "coreB":[
+      "crystal.py",
+    ],
+    "extensions":[
+      "cylinder.py"
+    ]}
+
 
 disabled = ["3dexample.py"]
 
@@ -66,8 +77,15 @@ def execute(process, make_notebook):
 
     # first run script
     cmd = f'PYTHONUNBUFFERED=1 DUNEPY_DISABLE_PLOTTING=1 python {script}'
-    # cmd = f'git checkout {notebook}'
+    print("...",cmd,flush=True)
+    start = time.time()
+    ret = os.system(cmd)
+    used = time.time() - start
+    print("...",script,f"completed ({ret}) in {used}sec",flush=True)
 
+    # now run jupytext
+    cmd = f'PYTHONUNBUFFERED=1 DUNEPY_DISABLE_PLOTTING=1 jupytext {script} '\
+          f'--execute --set-kernel python3 --output {notebook} --ExecutePreprocessor.timeout=600 --log-level DEBUG'
     print("...",cmd,flush=True)
     start = time.time()
     ret = os.system(cmd)
