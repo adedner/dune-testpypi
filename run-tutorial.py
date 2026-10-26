@@ -84,8 +84,15 @@ def execute(process, make_notebook):
     print("...",script,f"completed ({ret}) in {used}sec",flush=True)
 
     # now run jupytext
-    cmd = f'PYTHONUNBUFFERED=1 DUNEPY_DISABLE_PLOTTING=1 jupytext {script} '\
-          f'--execute --set-kernel python3 --output {notebook} --ExecutePreprocessor.timeout=600 --log-level DEBUG'
+    cmd = f'jupytext {script} --to ipynb --set-kernel python3 --output {notebook}'
+    print("...",cmd,flush=True)
+    start = time.time()
+    ret = os.system(cmd)
+    used = time.time() - start
+    print("...",script,f"completed ({ret}) in {used}sec",flush=True)
+
+    # now run nbconvert
+    cmd = f'jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=600 {notebook}'
     print("...",cmd,flush=True)
     start = time.time()
     ret = os.system(cmd)
@@ -126,7 +133,7 @@ if __name__ == "__main__":
     print(f"Have {cores} cores available",flush=True)
 
     # prebuild to populate dune-py if possible
-    ret = build(tests[examples],cores)
+    # ret = build(tests[examples],cores)
     # some precompilation failed but we are not yet treating this as an error
     # if not ret == 0:
     #     sys.exit(2)
