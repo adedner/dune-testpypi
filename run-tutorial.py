@@ -21,6 +21,7 @@ tests = {
       "elasticity.py",
       "wave.py",
       "biharmonic_IPC0.py",
+      "parallelrun.py",
     ],
     "coreB":[
       "solversInternal.py",
