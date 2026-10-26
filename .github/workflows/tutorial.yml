@@ -324,6 +324,12 @@ jobs:
           cd dune-fempy/doc
           make clean
           export UCX_TLS=tcp,self
+          export OMPI_MCA_pml=ob1
+
+          which mpiexec
+          mpiexec --version
+          python -c 'from mpi4py import MPI; print(MPI.Get_library_version())'
+
           python ../../run-tutorial.py ${{ matrix.test }} ${{ steps.cpu-cores.outputs.count }} $MAKE_NOTEBOOK  #
           cd ..
           if [ "$MAKE_NOTEBOOK" == "1" ]; then
