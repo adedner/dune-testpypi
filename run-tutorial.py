@@ -95,7 +95,6 @@ def execute(process, make_notebook):
     print("...",script,f"completed ({ret}) in {used}sec",flush=True)
 
     # now run nbconvert
-    python -m pip install papermill
     # cmd = f'jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=600 {notebook}'
     cmd = [
         "papermill",

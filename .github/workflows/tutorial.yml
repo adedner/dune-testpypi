@@ -236,6 +236,7 @@ jobs:
           echo "Selected python version $PYVERS"
           pip3 install --upgrade pip
           pip3 install matplotlib scipy scikit-build pygmsh wheel jupyter jupytext pandas
+          pip3 install papermill
           pip3 install landlab
           if [ "$RUNNER_OS" == "Linux" ]; then
             pip3 install scikit-umfpack
