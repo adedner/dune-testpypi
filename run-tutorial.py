@@ -107,7 +107,7 @@ def execute(process, make_notebook):
     ]
     print("...",cmd,flush=True)
     start = time.time()
-    result subprocess.run(cmd, check=True)
+    result = subprocess.run(cmd, check=True)
     ret = result.returncode
     used = time.time() - start
     print("...",script,f"completed ({ret}) in {used}sec",flush=True)
