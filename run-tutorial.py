@@ -1,6 +1,7 @@
 import multiprocessing
 import os, glob, sys, time
 from functools import partial
+import subprocess
 
 # Creating the tuple of all the tests
 all_test = glob.glob("*.py")
@@ -94,10 +95,21 @@ def execute(process, make_notebook):
     print("...",script,f"completed ({ret}) in {used}sec",flush=True)
 
     # now run nbconvert
-    cmd = f'jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=600 {notebook}'
+    python -m pip install papermill
+    # cmd = f'jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=600 {notebook}'
+    cmd = [
+        "papermill",
+        "--kernel", "python3",
+        "--progress-bar",
+        "--request-save-on-cell-execute",
+        "--execution-timeout", "600",
+        notebook,
+        f"exec{notebook}",
+    ]
     print("...",cmd,flush=True)
     start = time.time()
-    ret = os.system(cmd)
+    result subprocess.run(cmd, check=True)
+    ret = result.returncode
     used = time.time() - start
     print("...",script,f"completed ({ret}) in {used}sec",flush=True)
     
