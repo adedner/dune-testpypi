@@ -17,28 +17,29 @@ tests = {
       "lineplot.py",
       "othergrids.py",
       "levelgridview.py",
-      "parallelization.py",
       "elasticity.py",
-      "wave.py",
       "biharmonic_IPC0.py",
-      "parallelrun.py",
+      "cylinder.py"
+      "parallelization.py",
     ],
     "coreB":[
       "solversInternal.py",
-      "solversExternal.py",
       "dune-fempy.py",
       "laplace-adaptive.py",
       "laplace-dwr.py",
       "mcf.py",
       "mcf-algorithm.py",
-      "crystal.py",
       "spiral.py",
       "backuprestore.py",
       "uzawa-scipy.py",
       "evalues_laplace.py",
+      "crystal.py",
+      "wave.py",
+      "parallelrun.py",
       # "mixed_poisson.py",      # malloc(): unsorted double linked list corrupted
     ],
     "extensions":[
+      "solversExternal.py",
       "chemical.py",
       "chimpl.py",
       "euler.py", 
@@ -47,10 +48,11 @@ tests = {
       "monolithicStokes.py",
       "fieldsplitStokes.py",
       "overview_of_advection_solver.py",
-      "cylinder.py"
     ]}
 tests = {
     "coreA":[
+      "crystal.py",
+      "wave.py",
       "parallelrun.py",
     ],
     "coreB":[
