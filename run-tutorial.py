@@ -58,6 +58,7 @@ tests = {
     ],
     "coreB":[
       "crystal.py",
+      "mixed_poisson.py",      # malloc(): unsorted double linked list corrupted
     ],
     "extensions":[
       "cylinder.py"
