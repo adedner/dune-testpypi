@@ -81,7 +81,7 @@ def execute(process, make_notebook):
     notebook += "_nb.ipynb"
 
     # first generate and run code only script
-    cmd = ['PYTHONUNBUFFERED=1','python','extractpy.py',process[:-3] ]
+    cmd = ['env','PYTHONUNBUFFERED=1','python','extractpy.py',process[:-3] ]
     print("...",cmd,flush=True)
     result = subprocess.run(cmd, check=True)
     ret = result.returncode
