@@ -95,7 +95,11 @@ def execute(process, make_notebook):
     print("...",script,f"completed ({ret}) in {used}sec",flush=True)
 
     # now run nbconvert
-    # cmd = f'jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=600 {notebook}'
+    cmd = ['jupyter','nbconvert','--to','notebook','--execute','--inplace','--debug',
+           '--ExecutePreprocessor.timeout=600',
+           '--ExecutePreprocessor.kernel_name=python3',
+           notebook]
+    """       
     cmd = [
         "papermill",
         "--kernel", "python3",
@@ -105,6 +109,7 @@ def execute(process, make_notebook):
         notebook,
         f"exec{notebook}",
     ]
+    """
     print("...",cmd,flush=True)
     start = time.time()
     result = subprocess.run(cmd, check=True)
