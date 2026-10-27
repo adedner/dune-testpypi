@@ -86,7 +86,7 @@ def execute(process, make_notebook):
     result = subprocess.run(cmd, check=True)
     ret = result.returncode
     assert ret==0
-    cmd = ['PYTHONUNBUFFERED=1','DUNEPY_DISABLE_PLOTTING=1','python',codeOnly]
+    cmd = ['env','PYTHONUNBUFFERED=1','DUNEPY_DISABLE_PLOTTING=1','python',codeOnly]
     print("...",cmd,flush=True)
     start = time.time()
     result = subprocess.run(cmd, check=True)
@@ -128,10 +128,11 @@ def execute(process, make_notebook):
     # on success also build notebook
     if make_notebook == 1:
         if ret == 0:
-            cmd = f'make {notebook}'
+            cmd = ['make',notebook]
             print("...",cmd,flush=True)
             start = time.time()
-            ret = os.system(cmd)
+            result = subprocess.run(cmd, check=True)
+            ret = result.returncode
             used2 = time.time() - start
             print("...",notebook,f"completed ({ret}) in {used2}sec",flush=True)
             used += used2
