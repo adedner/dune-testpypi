@@ -20,7 +20,7 @@ tests = {
       "levelgridview.py",
       "elasticity.py",
       "biharmonic_IPC0.py",
-      "cylinder.py"
+      "cylinder.py",
       "parallelization.py",
     ],
     "coreB":[
