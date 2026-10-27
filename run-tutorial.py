@@ -66,6 +66,35 @@ tests = {
 
 disabled = ["3dexample.py"]
 
+def makeNotebook(script,notebook):
+    # simply running make fails with 'parallelrun' for some reason
+    # possibly jupytext --execute is a problem
+    if False:
+        cmd = ['make',notebook]
+    else: 
+        # run jupytext without --execute
+        cmd = ['jupytext',script,'--to','ipynb','--set-kernel','python3',
+               '--output',f'tmp{notebook}']
+        print("...",cmd,flush=True)
+        start = time.time()
+        ret = subprocess.run(cmd)
+        # now run nbconvert or papermill (some more output)
+        if True:
+            cmd = ['jupyter','nbconvert','--to','notebook','--execute',
+                   '--debug',
+                   '--ExecutePreprocessor.timeout=600',
+                   '--ExecutePreprocessor.kernel_name=python3',
+                   f'tmp{notebook}','--output',notebook]
+        else:
+            cmd = ['papermill','--kernel', 'python3','--progress-bar',
+                   '--request-save-on-cell-execute',
+                   '--execution-timeout', '600',
+                   f'tmp{notebook}',notebook]
+    print("...",cmd,flush=True)
+    result = subprocess.run(cmd)
+    ret = result.returncode
+    return ret
+
 # This block of code enables us to call the script from command line.
 def execute(process, make_notebook):
     if sys.version_info.minor < 10 and "overview_of_advection_solver" in process:
@@ -83,59 +112,25 @@ def execute(process, make_notebook):
     # first generate and run code only script
     cmd = ['env','PYTHONUNBUFFERED=1','python','extractpy.py',process[:-3] ]
     print("...",cmd,flush=True)
-    result = subprocess.run(cmd, check=True)
+    result = subprocess.run(cmd)
     ret = result.returncode
-    assert ret==0
+    if not ret == 0:
+        return
     cmd = ['env','PYTHONUNBUFFERED=1','DUNEPY_DISABLE_PLOTTING=1','python',codeOnly]
     print("...",cmd,flush=True)
     start = time.time()
-    result = subprocess.run(cmd, check=True)
+    result = subprocess.run(cmd)
     ret = result.returncode
     used = time.time() - start
     print("...",script,f"completed ({ret}) in {used}sec",flush=True)
-    """       
-    # now run jupytext
-    cmd = f'jupytext {script} --to ipynb --set-kernel python3 --output {notebook}'
-    print("...",cmd,flush=True)
-    start = time.time()
-    ret = os.system(cmd)
-    used = time.time() - start
-    print("...",script,f"completed ({ret}) in {used}sec",flush=True)
-    # now run nbconvert or papermill
-    if True:
-        cmd = ['jupyter','nbconvert','--to','notebook','--execute','--inplace','--debug',
-               '--ExecutePreprocessor.timeout=600',
-              '--ExecutePreprocessor.kernel_name=python3',
-              notebook]
-    else:
-        cmd = [
-            "papermill",
-            "--kernel", "python3",
-            "--progress-bar",
-            "--request-save-on-cell-execute",
-            "--execution-timeout", "600",
-            notebook,
-            f"exec{notebook}",
-        ]
-    print("...",cmd,flush=True)
-    start = time.time()
-    result = subprocess.run(cmd, check=True)
-    ret = result.returncode
-    used = time.time() - start
-    print("...",script,f"completed ({ret}) in {used}sec",flush=True)
-    """
     
     # on success also build notebook
-    if make_notebook == 1:
-        if ret == 0:
-            cmd = ['make',notebook]
-            print("...",cmd,flush=True)
-            start = time.time()
-            result = subprocess.run(cmd, check=True)
-            ret = result.returncode
-            used2 = time.time() - start
-            print("...",notebook,f"completed ({ret}) in {used2}sec",flush=True)
-            used += used2
+    if make_notebook == 1 and ret == 0:
+        start = time.time()
+        ret = makeNotebook(script,notebook)
+        used2 = time.time() - start
+        print("...",notebook,f"completed ({ret}) in {used2}sec",flush=True)
+        used += used2
 
     return [script,ret,used]
 
