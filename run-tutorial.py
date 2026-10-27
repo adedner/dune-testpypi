@@ -50,6 +50,7 @@ tests = {
       "fieldsplitStokes.py",
       "overview_of_advection_solver.py",
     ]}
+"""
 tests = {
     "coreA":[
       "crystal.py",
@@ -62,7 +63,7 @@ tests = {
     "extensions":[
       "cylinder.py"
     ]}
-
+"""
 
 disabled = ["3dexample.py"]
 
